@@ -18,10 +18,10 @@ namespace QueryNinja.Models
         public string CourseName { get; set; }
 
         [Required]
-        public DateOnly StartDate { get; set; }
+        public DateTime StartDate { get; set; }
 
         [Required]
-        public DateOnly EndDate { get; set; }
+        public DateTime EndDate { get; set; }
 
         [ForeignKey("FkTeacherId")]
         public int FkTeacherId { get; set; }
