@@ -1,12 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
-    internal class Course
+    public class Course
     {
+        [Key]
+        public int CourseId { get; set; }
+
+        [Required]
+        [MaxLength(150)]
+        public string CourseName { get; set; }
+
+        [Required]
+        public DateOnly StartDate { get; set; }
+
+        [Required]
+        public DateOnly EndDate { get; set; }
+
+        [ForeignKey("FkTeacherId")]
+        public int FkTeacherId { get; set; }
+        public Teacher Teacher { get; set; }
     }
 }
