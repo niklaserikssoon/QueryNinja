@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
-    internal class Course
+    public class Course
     {
     }
 }
