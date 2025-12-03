@@ -10,13 +10,10 @@ namespace QueryNinja.Data
 {
     public class QueryNinjasDbContext : DbContext
     {
-        public QueryNinjasDbContext(DbContextOptions<QueryNinjasDbContext> options)
-            : base(options)
-        {
-        }
-
         public QueryNinjasDbContext()
-            : base(new DbContextOptions<QueryNinjasDbContext>())
+            : base(new DbContextOptionsBuilder<QueryNinjasDbContext>()
+                      .UseSqlServer("Server=localhost;Database=QueryNinjasDb;Trusted_Connection=True;")
+                      .Options)
         {
         }
 

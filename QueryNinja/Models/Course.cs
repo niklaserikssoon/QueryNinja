@@ -23,8 +23,10 @@ namespace QueryNinja.Models
         [Required]
         public DateTime EndDate { get; set; }
 
-        [ForeignKey("FkTeacherId")]
+        [Required]
         public int FkTeacherId { get; set; }
-        public Teacher Teacher { get; set; }
+
+        [ForeignKey("FkTeacherId")]
+        public Teacher Teacher { get; set; } = null!;
     }
 }

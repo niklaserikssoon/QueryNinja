@@ -7,20 +7,24 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
-    public class Teacher
+    public class Student
     {
         [Key]
-        public int TeacherId { get; set; }
+        public int StudentID { get; set; }
+
         [Required]
-        [MaxLength(50)] 
+        public DateTime BirthDate { get; set; }
+
+        [Required]
+        [MaxLength(50)]
         public string FirstName { get; set; }
+
         [Required]
         [MaxLength(50)]
         public string LastName { get; set; }
-        [Required]
-        public string Email { get; set; }
-        public string AreaOfExpertise { get; set; }
 
-        public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+        [Required]
+        [MaxLength(200)]
+        public string Email { get; set; }
     }
 }
