@@ -15,17 +15,13 @@ namespace QueryNinja.Models
 
         public string GradeValue { get; set; }
 
-        [ForeignKey("FkTeacherId")]
         public int FkTeacherId { get; set; }
-        public Teacher Teacher { get; set; }
+        public Teacher Teacher { get; set; }  
 
-        [ForeignKey("FkCourseId")]
         public int FkCourseId { get; set; }
         public Course Course { get; set; }
 
-        [ForeignKey("FkStudentId")]
         public int FkStudentId { get; set; }
         public Student Student { get; set; }
-
     }
 }

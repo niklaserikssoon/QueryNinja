@@ -26,5 +26,7 @@ namespace QueryNinja.Models
         [Required]
         [MaxLength(200)]
         public string Email { get; set; }
+
+        public ICollection<Grade> Grades { get; set; } = new List<Grade>();
     }
 }

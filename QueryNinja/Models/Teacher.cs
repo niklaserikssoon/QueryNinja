@@ -22,5 +22,6 @@ namespace QueryNinja.Models
         public string AreaOfExpertise { get; set; }
 
         public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+        public ICollection<Grade> Grades { get; set; } = new List<Grade>();
     }
 }

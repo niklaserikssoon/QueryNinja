@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace QueryNinja.Migrations
 {
     /// <inheritdoc />
-    public partial class initialCodeFirstTables : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,6 +24,38 @@ namespace QueryNinja.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ClassRooms", x => x.ClassRoomId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Student",
+                columns: table => new
+                {
+                    StudentID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Student", x => x.StudentID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Teachers",
+                columns: table => new
+                {
+                    TeacherId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AreaOfExpertise = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Teachers", x => x.TeacherId);
                 });
 
             migrationBuilder.CreateTable(
@@ -49,19 +81,63 @@ namespace QueryNinja.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Student",
+                name: "Grades",
                 columns: table => new
                 {
-                    StudentID = table.Column<int>(type: "int", nullable: false)
+                    GradeId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                    GradeValue = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FkTeacherId = table.Column<int>(type: "int", nullable: false),
+                    FkCourseId = table.Column<int>(type: "int", nullable: false),
+                    FkStudentId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Student", x => x.StudentID);
+                    table.PrimaryKey("PK_Grades", x => x.GradeId);
+                    table.ForeignKey(
+                        name: "FK_Grades_Courses_FkCourseId",
+                        column: x => x.FkCourseId,
+                        principalTable: "Courses",
+                        principalColumn: "CourseId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Grades_Student_FkStudentId",
+                        column: x => x.FkStudentId,
+                        principalTable: "Student",
+                        principalColumn: "StudentID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Grades_Teachers_FkTeacherId",
+                        column: x => x.FkTeacherId,
+                        principalTable: "Teachers",
+                        principalColumn: "TeacherId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Registrations",
+                columns: table => new
+                {
+                    RegistrationId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FkStudentId = table.Column<int>(type: "int", nullable: false),
+                    FkCourseId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Registrations", x => x.RegistrationId);
+                    table.ForeignKey(
+                        name: "FK_Registrations_Courses_FkCourseId",
+                        column: x => x.FkCourseId,
+                        principalTable: "Courses",
+                        principalColumn: "CourseId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Registrations_Student_FkStudentId",
+                        column: x => x.FkStudentId,
+                        principalTable: "Student",
+                        principalColumn: "StudentID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,69 +165,6 @@ namespace QueryNinja.Migrations
                         column: x => x.FkCourseId,
                         principalTable: "Courses",
                         principalColumn: "CourseId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Grades",
-                columns: table => new
-                {
-                    GradeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    GradeValue = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FkTeacherId = table.Column<int>(type: "int", nullable: false),
-                    TeacherId = table.Column<int>(type: "int", nullable: false),
-                    FkCourseId = table.Column<int>(type: "int", nullable: false),
-                    CourseId = table.Column<int>(type: "int", nullable: false),
-                    FkStudentId = table.Column<int>(type: "int", nullable: false),
-                    StudentID = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Grades", x => x.GradeId);
-                    table.ForeignKey(
-                        name: "FK_Grades_Courses_CourseId",
-                        column: x => x.CourseId,
-                        principalTable: "Courses",
-                        principalColumn: "CourseId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Grades_Student_StudentID",
-                        column: x => x.StudentID,
-                        principalTable: "Student",
-                        principalColumn: "StudentID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Grades_Teachers_TeacherId",
-                        column: x => x.TeacherId,
-                        principalTable: "Teachers",
-                        principalColumn: "TeacherId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Registrations",
-                columns: table => new
-                {
-                    RegistrationId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FkStudentId = table.Column<int>(type: "int", nullable: false),
-                    FkCourseId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Registrations", x => x.RegistrationId);
-                    table.ForeignKey(
-                        name: "FK_Registrations_Courses_FkCourseId",
-                        column: x => x.FkCourseId,
-                        principalTable: "Courses",
-                        principalColumn: "CourseId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Registrations_Student_FkStudentId",
-                        column: x => x.FkStudentId,
-                        principalTable: "Student",
-                        principalColumn: "StudentID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -235,19 +248,19 @@ namespace QueryNinja.Migrations
                 column: "FkTeacherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Grades_CourseId",
+                name: "IX_Grades_FkCourseId",
                 table: "Grades",
-                column: "CourseId");
+                column: "FkCourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Grades_StudentID",
+                name: "IX_Grades_FkStudentId",
                 table: "Grades",
-                column: "StudentID");
+                column: "FkStudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Grades_TeacherId",
+                name: "IX_Grades_FkTeacherId",
                 table: "Grades",
-                column: "TeacherId");
+                column: "FkTeacherId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Registrations_FkCourseId",
@@ -268,6 +281,12 @@ namespace QueryNinja.Migrations
                 name: "IX_Schedules_FkCourseId",
                 table: "Schedules",
                 column: "FkCourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Teachers_Email",
+                table: "Teachers",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -291,25 +310,8 @@ namespace QueryNinja.Migrations
             migrationBuilder.DropTable(
                 name: "Courses");
 
-            migrationBuilder.DeleteData(
-                table: "Teachers",
-                keyColumn: "TeacherId",
-                keyValue: 1);
-
-            migrationBuilder.DeleteData(
-                table: "Teachers",
-                keyColumn: "TeacherId",
-                keyValue: 2);
-
-            migrationBuilder.DeleteData(
-                table: "Teachers",
-                keyColumn: "TeacherId",
-                keyValue: 3);
-
-            migrationBuilder.DeleteData(
-                table: "Teachers",
-                keyColumn: "TeacherId",
-                keyValue: 4);
+            migrationBuilder.DropTable(
+                name: "Teachers");
         }
     }
 }

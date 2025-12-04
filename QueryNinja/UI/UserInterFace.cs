@@ -10,6 +10,7 @@ namespace QueryNinja.UI
 {
     public class UserInterFace
     {
+
         // This class will handle all user interface related functionalities
         public void DisplayUI()
         {
@@ -119,8 +120,7 @@ namespace QueryNinja.UI
                                 Console.ReadKey();
                                 break;
                             case "2":
-                                Console.WriteLine("View students not implemented.");
-                                Console.ReadKey();
+                                ViewStudents();
                                 break;
                             case "0":
                                 return;
@@ -129,6 +129,16 @@ namespace QueryNinja.UI
                                 Console.ReadKey();
                                 break;
                         }
+                    }
+                }
+                public void ViewStudents()
+                {
+                    var dbContext = new Data.QueryNinjasDbContext();
+                    var teachers = dbContext.Teachers.ToList();
+                    Console.WriteLine($"Found {teachers.Count} students.");
+                    foreach (var teacher in teachers)
+                    {
+                        Console.WriteLine($"{teacher.FirstName} {teacher.LastName}");
                     }
                 }
             }
@@ -190,6 +200,22 @@ namespace QueryNinja.UI
                         }
                     }
                 }
+            }
+
+            // method to add student
+            public void AddStudent()
+            {
+                Console.WriteLine("Create an ID for studen: ");
+                var id = Console.ReadLine();
+                Console.Write("Enter student name: ");
+                var firstName = Console.ReadLine();
+                Console.Write("Enter student lastname: ");
+                var lastname = Console.ReadLine();
+                Console.Write("Enter student Birth date: ");
+                var birthDate = Console.ReadLine();
+                Console.Write("Enter student email: ");
+                var email = Console.ReadLine();
+
             }
         }
     }
