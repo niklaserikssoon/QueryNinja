@@ -116,11 +116,13 @@ namespace QueryNinja.UI
                         switch (input)
                         {
                             case "1":
-                                Console.WriteLine("Add student not implemented yet.");
+                                AddStudent();
                                 Console.ReadKey();
                                 break;
                             case "2":
                                 ViewStudents();
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
                                 break;
                             case "0":
                                 return;
@@ -134,12 +136,42 @@ namespace QueryNinja.UI
                 public void ViewStudents()
                 {
                     var dbContext = new Data.QueryNinjasDbContext();
-                    var teachers = dbContext.Teachers.ToList();
-                    Console.WriteLine($"Found {teachers.Count} students.");
-                    foreach (var teacher in teachers)
+                    var students = dbContext.Students.ToList();
+                    Console.WriteLine("==== Students List ====");
+                    foreach (var student in students)
                     {
-                        Console.WriteLine($"{teacher.FirstName} {teacher.LastName}");
+                        Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Birth Date: {student.BirthDate.ToShortDateString()}, Email: {student.Email}");
                     }
+                }
+
+                // method to add a new student
+                public void AddStudent()
+                {
+                    Console.Write("Enter student first name: ");
+                    var firstName = Console.ReadLine();
+                    Console.Write("Enter student last name: ");
+                    var lastName = Console.ReadLine();
+                    Console.Write("Enter student birth date (yyyy-mm-dd): ");
+                    var birthDateInput = Console.ReadLine();
+                    DateTime birthDate;
+                    if (!DateTime.TryParse(birthDateInput, out birthDate))
+                    {
+                        Console.WriteLine("Invalid date format.");
+                        return;
+                    }
+                    Console.Write("Enter student email: ");
+                    var email = Console.ReadLine();
+                    var dbContext = new Data.QueryNinjasDbContext();
+                    var student = new Models.Student
+                    {
+                        FirstName = firstName,
+                        LastName = lastName,
+                        BirthDate = birthDate,
+                        Email = email
+                    };
+                    dbContext.Students.Add(student);
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Student added successfully.");
                 }
             }
 
@@ -200,22 +232,6 @@ namespace QueryNinja.UI
                         }
                     }
                 }
-            }
-
-            // method to add student
-            public void AddStudent()
-            {
-                Console.WriteLine("Create an ID for studen: ");
-                var id = Console.ReadLine();
-                Console.Write("Enter student name: ");
-                var firstName = Console.ReadLine();
-                Console.Write("Enter student lastname: ");
-                var lastname = Console.ReadLine();
-                Console.Write("Enter student Birth date: ");
-                var birthDate = Console.ReadLine();
-                Console.Write("Enter student email: ");
-                var email = Console.ReadLine();
-
             }
         }
     }

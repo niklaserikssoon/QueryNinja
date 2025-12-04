@@ -25,6 +25,7 @@ namespace QueryNinja.Data
         public DbSet<Grade> Grades { get; set; }
         public DbSet<Registration> Registrations { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<Student> Students { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
