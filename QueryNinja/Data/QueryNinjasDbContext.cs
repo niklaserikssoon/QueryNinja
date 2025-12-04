@@ -11,9 +11,11 @@ namespace QueryNinja.Data
     public class QueryNinjasDbContext : DbContext
     {
         public QueryNinjasDbContext()
-            : base(new DbContextOptionsBuilder<QueryNinjasDbContext>()
-                      .UseSqlServer("Server=localhost;Database=QueryNinjasDb;Trusted_Connection=True;")
-                      .Options)
+        {
+        }
+
+        public QueryNinjasDbContext(DbContextOptions<QueryNinjasDbContext> options)
+            : base(options)
         {
         }
 
@@ -24,17 +26,21 @@ namespace QueryNinja.Data
         public DbSet<Registration> Registrations { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
 
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=localhost;Database=QueryNinjasDb;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer(
+                    "Server=localhost;Database=Query-ninjas;Trusted_Connection=True;TrustServerCertificate=True;"
+                );
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // table names for EF to ignore already created pluralization conventions
+            modelBuilder.Entity<Teacher>().ToTable("Teachers");
+            modelBuilder.Entity<Student>().ToTable("Student");
             //unique index
             modelBuilder.Entity<Teacher>()
                 .HasIndex(t => t.Email)
@@ -47,6 +53,24 @@ namespace QueryNinja.Data
             modelBuilder.Entity<Course>()
                 .HasIndex(c => c.CourseName)
                 .IsUnique();
+
+            modelBuilder.Entity<Grade>()
+                .HasOne(g => g.Teacher)
+                .WithMany(t => t.Grades)
+                .HasForeignKey(g => g.FkTeacherId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Grade>()
+                .HasOne(g => g.Student)
+                .WithMany(s => s.Grades)
+                .HasForeignKey(g => g.FkStudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Grade>()
+                .HasOne(g => g.Course)
+                .WithMany(c => c.Grades)
+                .HasForeignKey(g => g.FkCourseId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             //Seed-data, Teachers (AI-generated)
             modelBuilder.Entity<Teacher>().HasData(

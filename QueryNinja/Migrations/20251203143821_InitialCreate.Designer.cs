@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QueryNinja.Data;
 
@@ -11,9 +12,11 @@ using QueryNinja.Data;
 namespace QueryNinja.Migrations
 {
     [DbContext(typeof(QueryNinjasDbContext))]
-    partial class QueryNinjasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251203143821_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -401,7 +404,7 @@ namespace QueryNinja.Migrations
 
                     b.HasKey("StudentID");
 
-                    b.ToTable("Student", (string)null);
+                    b.ToTable("Student");
                 });
 
             modelBuilder.Entity("QueryNinja.Models.Teacher", b =>
@@ -435,7 +438,7 @@ namespace QueryNinja.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Teachers", (string)null);
+                    b.ToTable("Teachers");
 
                     b.HasData(
                         new

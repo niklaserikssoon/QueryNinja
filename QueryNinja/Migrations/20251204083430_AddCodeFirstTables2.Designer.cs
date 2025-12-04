@@ -12,8 +12,8 @@ using QueryNinja.Data;
 namespace QueryNinja.Migrations
 {
     [DbContext(typeof(QueryNinjasDbContext))]
-    [Migration("20251203132218_initialCodeFirstTables")]
-    partial class initialCodeFirstTables
+    [Migration("20251204083430_AddCodeFirstTables2")]
+    partial class AddCodeFirstTables2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -218,9 +218,6 @@ namespace QueryNinja.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GradeId"));
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
                     b.Property<int>("FkCourseId")
                         .HasColumnType("int");
 
@@ -234,19 +231,13 @@ namespace QueryNinja.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StudentID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
-
                     b.HasKey("GradeId");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("FkCourseId");
 
-                    b.HasIndex("StudentID");
+                    b.HasIndex("FkStudentId");
 
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("FkTeacherId");
 
                     b.ToTable("Grades");
                 });
@@ -413,7 +404,7 @@ namespace QueryNinja.Migrations
 
                     b.HasKey("StudentID");
 
-                    b.ToTable("Student");
+                    b.ToTable("Student", (string)null);
                 });
 
             modelBuilder.Entity("QueryNinja.Models.Teacher", b =>
@@ -447,7 +438,7 @@ namespace QueryNinja.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Teachers");
+                    b.ToTable("Teachers", (string)null);
 
                     b.HasData(
                         new
@@ -498,21 +489,21 @@ namespace QueryNinja.Migrations
             modelBuilder.Entity("QueryNinja.Models.Grade", b =>
                 {
                     b.HasOne("QueryNinja.Models.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("Grades")
+                        .HasForeignKey("FkCourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QueryNinja.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("Grades")
+                        .HasForeignKey("FkStudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QueryNinja.Models.Teacher", "Teacher")
-                        .WithMany()
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("Grades")
+                        .HasForeignKey("FkTeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Course");
@@ -560,9 +551,21 @@ namespace QueryNinja.Migrations
                     b.Navigation("Course");
                 });
 
+            modelBuilder.Entity("QueryNinja.Models.Course", b =>
+                {
+                    b.Navigation("Grades");
+                });
+
+            modelBuilder.Entity("QueryNinja.Models.Student", b =>
+                {
+                    b.Navigation("Grades");
+                });
+
             modelBuilder.Entity("QueryNinja.Models.Teacher", b =>
                 {
                     b.Navigation("Courses");
+
+                    b.Navigation("Grades");
                 });
 #pragma warning restore 612, 618
         }

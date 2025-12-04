@@ -28,5 +28,7 @@ namespace QueryNinja.Models
 
         [ForeignKey("FkTeacherId")]
         public Teacher Teacher { get; set; } = null!;
+
+        public ICollection<Grade> Grades { get; set; } = new List<Grade>();
     }
 }
