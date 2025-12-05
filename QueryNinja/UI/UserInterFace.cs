@@ -1,6 +1,7 @@
 ﻿using QueryNinja.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,11 +19,11 @@ namespace QueryNinja.UI
             {
                 Console.Clear();
                 Console.WriteLine("==== Main menu ====");
-                Console.WriteLine("1. Courseadministration");
-                Console.WriteLine("2. students");
-                Console.WriteLine("3. Schema");
-                Console.WriteLine("4. Raports");
-                Console.WriteLine("0. quit");
+                Console.WriteLine("1. Course administration");
+                Console.WriteLine("2. Student administration");
+                Console.WriteLine("3. Schedule administration");
+                Console.WriteLine("4. Reports");
+                Console.WriteLine("0. Quit");
                 Console.Write("Choice: ");
 
                 var choice = Console.ReadLine();
@@ -62,10 +63,11 @@ namespace QueryNinja.UI
                 while (true)
                 {
                     Console.Clear();
-                    Console.WriteLine("==== Course Administration ====");
+                    Console.WriteLine("==== Course administration ====");
                     Console.WriteLine("1. Create course");
                     Console.WriteLine("2. View courses");
                     Console.WriteLine("3. View active courses");
+                    Console.WriteLine("4. Register student on course");
                     Console.WriteLine("0. Back");
                     Console.Write("Choice: ");
 
@@ -88,6 +90,11 @@ namespace QueryNinja.UI
                             Console.ReadKey();
                             break;
 
+                        case "4":
+                            Console.WriteLine("Register student on course not implemented.");
+                            Console.ReadKey();
+                            break;
+
                         case "0":
                             return;
 
@@ -107,9 +114,12 @@ namespace QueryNinja.UI
                     while (true)
                     {
                         Console.Clear();
-                        Console.WriteLine("==== Student Menu ====");
+                        Console.WriteLine("==== Student administration ====");
                         Console.WriteLine("1. Add student");
-                        Console.WriteLine("2. View students");
+                        Console.WriteLine("2. Edit student");
+                        Console.WriteLine("3. Remove student");
+                        Console.WriteLine("4. View all students");
+                        Console.WriteLine("5. View student details"); //Som administratör vill jag kunna se elever, vilka kurser de läst, vilka betyg de fått och vilken lärare som satt betyget samt datum när betyget satts.
                         Console.WriteLine("0. Back");
                         Console.Write("Choice: ");
                         var input = Console.ReadLine();
@@ -120,7 +130,22 @@ namespace QueryNinja.UI
                                 Console.ReadKey();
                                 break;
                             case "2":
+                                //EditStudent();
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
+                                break;
+                            case "3":
+                                //RemoveStudent();
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
+                                break;
+                            case "4":
                                 ViewStudents();
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
+                                break;
+                            case "5":
+                                //ViewStudentDetails();
                                 Console.WriteLine("Press any key to continue...");
                                 Console.ReadKey();
                                 break;
@@ -183,8 +208,11 @@ namespace QueryNinja.UI
                     while (true)
                     {
                         Console.Clear();
-                        Console.WriteLine("==== Schedule Menu ====");
+                        Console.WriteLine("==== Schedule administration ====");
                         Console.WriteLine("1. View schedule");
+                        Console.WriteLine("2. Add schedule item");
+                        Console.WriteLine("3. Manage teachers");
+                        Console.WriteLine("4. Manage classrooms");
                         Console.WriteLine("0. Back");
                         Console.Write("Choice: ");
                         var input = Console.ReadLine();
@@ -194,6 +222,22 @@ namespace QueryNinja.UI
                                 Console.WriteLine("View schedule not implemented yet.");
                                 Console.ReadKey();
                                 break;
+
+                            case "2":
+                                Console.WriteLine("Add scheduele item not implemented yet.");
+                                Console.ReadKey();
+                                break;
+
+                            case "3":
+                                Console.WriteLine("Manage teachers not implemented yet.");
+                                Console.ReadKey();
+                                break;
+
+                            case "4":
+                                Console.WriteLine("Manage classrooms not implemented yet.");
+                                Console.ReadKey();
+                                break;
+
                             case "0":
                                 return;
                             default:
@@ -212,14 +256,24 @@ namespace QueryNinja.UI
                     while (true)
                     {
                         Console.Clear();
-                        Console.WriteLine("==== Report Menu ====");
-                        Console.WriteLine("1. Generate report");
+                        Console.WriteLine("==== Reports ====");
+                        Console.WriteLine("1. Approved students");
+                        Console.WriteLine("2. Non-approved students");
+                        Console.WriteLine("3. All students");
                         Console.WriteLine("0. Back");
                         Console.Write("Choice: ");
                         var input = Console.ReadLine();
                         switch (input)
                         {
                             case "1":
+                                Console.WriteLine("Generate report not implemented yet.");
+                                Console.ReadKey();
+                                break;
+                            case "2":
+                                Console.WriteLine("Generate report not implemented yet.");
+                                Console.ReadKey();
+                                break;
+                            case "3":
                                 Console.WriteLine("Generate report not implemented yet.");
                                 Console.ReadKey();
                                 break;
