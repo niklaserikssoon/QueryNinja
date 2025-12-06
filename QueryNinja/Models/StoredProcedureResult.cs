@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
-    internal class Registration
+    public class StoredProcedureResult
     {
-        public object StudentID { get; internal set; }
+        public string ResultMessage { get; set; }
     }
 }

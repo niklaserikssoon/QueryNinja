@@ -20,7 +20,16 @@ namespace QueryNinja.Data
         {
         }
 
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Grade> Grades { get; set; }
+        public DbSet<Registration> Registrations { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
+
+        public DbSet<Teacher> Teachers { get; set; }
+
+        public DbSet<StoredProcedureResult> StoredProcedureResults { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
