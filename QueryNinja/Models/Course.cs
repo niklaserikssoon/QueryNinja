@@ -1,16 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
-    internal class Course
+    public class Course
     {
-        public DateTime StartDate { get; internal set; }
-        public DateTime EndDate { get; internal set; }
-        public object CourseID { get; internal set; }
-        public object Title { get; internal set; }
+        [Key]
+        public int CourseId { get; set; }
+
+        [Required]
+        [MaxLength(150)]
+        public string CourseName { get; set; }
+
+        [Required]
+        public DateTime StartDate { get; set; }
+
+        [Required]
+        public DateTime EndDate { get; set; }
+
+        [Required]
+        public int FkTeacherId { get; set; }
+
+        [ForeignKey("FkTeacherId")]
+        public Teacher Teacher { get; set; } = null!;
+
+        public ICollection<Grade> Grades { get; set; } = new List<Grade>();
+
     }
 }

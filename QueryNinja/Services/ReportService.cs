@@ -2,8 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
+using QueryNinja.Models;
 
 namespace QueryNinja.Service
 {
@@ -15,7 +16,7 @@ namespace QueryNinja.Service
         {
             _context = context;
         }
-        
+
         public IEnumerable<object> GetActiveCoursesReport()
         {
             var today = DateTime.Today;
@@ -24,8 +25,8 @@ namespace QueryNinja.Service
                 .Where(c => c.StartDate <= today && c.EndDate >= today)
                 .Select(c => new
                 {
-                    c.CourseID,
-                    c.Title,
+                    c.CourseId,
+                    c.CourseName,
                     c.StartDate,
                     c.EndDate
                 })
@@ -34,25 +35,39 @@ namespace QueryNinja.Service
             return activeCourses;
         }
 
-
-        public object GetStudentOverviewReport()
+        public IEnumerable<object> GetStudentOverviewReport()
         {
-           
+
             var overview = _context.Students
                 .Select(s => new {
                     s.StudentID,
                     s.FirstName,
-                    TotalCourses = _context.Registrations.Count(r => r.StudentID == s.StudentID)
+                    s.LastName,
+                    TotalCourses = _context.Registrations.Count(r => r.FkStudentId == s.StudentID)
                 })
                 .ToList();
 
             return overview;
         }
 
-        internal string CallRegisterStudentSP(int studentId, int courseId)
+        public string CallRegisterStudentSP(int studentId, int courseId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var studentIdParam = new Microsoft.Data.SqlClient.SqlParameter("@StudentId", studentId);
+                var courseIdParam = new Microsoft.Data.SqlClient.SqlParameter("@CourseId", courseId);
+
+                var result = _context.StoredProcedureResults
+                    .FromSqlRaw("EXEC RegisterStudentForCourse @StudentId, @CourseId", studentIdParam, courseIdParam)
+                    .AsEnumerable()
+                    .FirstOrDefault();
+
+                return result?.ResultMessage ?? "Registration completed successfully, but no message was returned.";
+            }
+            catch (Exception ex)
+            {
+                return $"Error executing stored procedure: {ex.Message}";
+            }
         }
     }
 }
-
