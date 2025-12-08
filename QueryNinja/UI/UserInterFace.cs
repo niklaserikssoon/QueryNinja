@@ -5,14 +5,20 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static QueryNinja.UI.UserInterFace.CourseMenu;
+using QueryNinja.Service;
+using QueryNinja.Data;
 
 namespace QueryNinja.UI
 {
     public class UserInterFace
     {
+        private readonly ReportService _reportService;
 
-        // This class will handle all user interface related functionalities
+        public UserInterFace(ReportService reportService)
+        {
+            _reportService = reportService;
+        }
+
         public void DisplayUI()
         {
             while (true)
@@ -33,22 +39,17 @@ namespace QueryNinja.UI
                     case "1":
                         new CourseMenu().ShowCourse();
                         break;
-
                     case "2":
                         new studentMenu().ShowStudent();
                         break;
-
                     case "3":
                         new ScheduleMenu().ShowSchedule();
                         break;
-
                     case "4":
-                        new ReportMenu().ShowReport();
+                        new ReportMenu(_reportService).ShowReport();
                         break;
-
                     case "0":
                         return;
-
                     default:
                         Console.WriteLine("Invalid choice");
                         Console.ReadKey();
@@ -56,6 +57,7 @@ namespace QueryNinja.UI
                 }
             }
         }
+
         public class CourseMenu
         {
             public void ShowCourse()
@@ -79,25 +81,20 @@ namespace QueryNinja.UI
                             Console.WriteLine("Create course not implemented yet.");
                             Console.ReadKey();
                             break;
-
                         case "2":
                             Console.WriteLine("List courses not implemented.");
                             Console.ReadKey();
                             break;
-
                         case "3":
                             Console.WriteLine("Active courses not implemented.");
                             Console.ReadKey();
                             break;
-
                         case "4":
                             Console.WriteLine("Register student on course not implemented.");
                             Console.ReadKey();
                             break;
-
                         case "0":
                             return;
-
                         default:
                             Console.WriteLine("Invalid choice.");
                             Console.ReadKey();
@@ -105,6 +102,7 @@ namespace QueryNinja.UI
                     }
                 }
             }
+        }
             public void CreateCourse()
             {
                 Console.WriteLine("==== Create New Course ====");
@@ -231,99 +229,94 @@ namespace QueryNinja.UI
                 }
             }
 
-            // student menu
-            public class studentMenu
+        public class studentMenu
+        {
+            public void ShowStudent()
             {
-                public void ShowStudent()
+                while (true)
                 {
-                    while (true)
+                    Console.Clear();
+                    Console.WriteLine("==== Student administration ====");
+                    Console.WriteLine("1. Add student");
+                    Console.WriteLine("2. Edit student");
+                    Console.WriteLine("3. Remove student");
+                    Console.WriteLine("4. View all students");
+                    Console.WriteLine("5. View student details");
+                    Console.WriteLine("0. Back");
+                    Console.Write("Choice: ");
+                    var input = Console.ReadLine();
+                    switch (input)
                     {
-                        Console.Clear();
-                        Console.WriteLine("==== Student administration ====");
-                        Console.WriteLine("1. Add student");
-                        Console.WriteLine("2. Edit student");
-                        Console.WriteLine("3. Remove student");
-                        Console.WriteLine("4. View all students");
-                        Console.WriteLine("5. View student details"); //Som administratör vill jag kunna se elever, vilka kurser de läst, vilka betyg de fått och vilken lärare som satt betyget samt datum när betyget satts.
-                        Console.WriteLine("0. Back");
-                        Console.Write("Choice: ");
-                        var input = Console.ReadLine();
-                        switch (input)
-                        {
-                            case "1":
-                                AddStudent();
-                                Console.ReadKey();
-                                break;
-                            case "2":
-                                //EditStudent();
-                                Console.WriteLine("Press any key to continue...");
-                                Console.ReadKey();
-                                break;
-                            case "3":
-                                //RemoveStudent();
-                                Console.WriteLine("Press any key to continue...");
-                                Console.ReadKey();
-                                break;
-                            case "4":
-                                ViewStudents();
-                                Console.WriteLine("Press any key to continue...");
-                                Console.ReadKey();
-                                break;
-                            case "5":
-                                //ViewStudentDetails();
-                                Console.WriteLine("Press any key to continue...");
-                                Console.ReadKey();
-                                break;
-                            case "0":
-                                return;
-                            default:
-                                Console.WriteLine("Invalid choice.");
-                                Console.ReadKey();
-                                break;
-                        }
+                        case "1":
+                            AddStudent();
+                            Console.ReadKey();
+                            break;
+                        case "2":
+                            Console.WriteLine("Press any key to continue...");
+                            Console.ReadKey();
+                            break;
+                        case "3":
+                            Console.WriteLine("Press any key to continue...");
+                            Console.ReadKey();
+                            break;
+                        case "4":
+                            ViewStudents();
+                            Console.WriteLine("Press any key to continue...");
+                            Console.ReadKey();
+                            break;
+                        case "5":
+                            Console.WriteLine("Press any key to continue...");
+                            Console.ReadKey();
+                            break;
+                        case "0":
+                            return;
+                        default:
+                            Console.WriteLine("Invalid choice.");
+                            Console.ReadKey();
+                            break;
                     }
-                }
-                public void ViewStudents()
-                {
-                    var dbContext = new Data.QueryNinjasDbContext();
-                    var students = dbContext.Students.ToList();
-                    Console.WriteLine("==== Students List ====");
-                    foreach (var student in students)
-                    {
-                        Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Birth Date: {student.BirthDate.ToShortDateString()}, Email: {student.Email}");
-                    }
-                }
-
-                // method to add a new student
-                public void AddStudent()
-                {
-                    Console.Write("Enter student first name: ");
-                    var firstName = Console.ReadLine();
-                    Console.Write("Enter student last name: ");
-                    var lastName = Console.ReadLine();
-                    Console.Write("Enter student birth date (yyyy-mm-dd): ");
-                    var birthDateInput = Console.ReadLine();
-                    DateTime birthDate;
-                    if (!DateTime.TryParse(birthDateInput, out birthDate))
-                    {
-                        Console.WriteLine("Invalid date format.");
-                        return;
-                    }
-                    Console.Write("Enter student email: ");
-                    var email = Console.ReadLine();
-                    var dbContext = new Data.QueryNinjasDbContext();
-                    var student = new Models.Student
-                    {
-                        FirstName = firstName,
-                        LastName = lastName,
-                        BirthDate = birthDate,
-                        Email = email
-                    };
-                    dbContext.Students.Add(student);
-                    dbContext.SaveChanges();
-                    Console.WriteLine("Student added successfully.");
                 }
             }
+            public void ViewStudents()
+            {
+                var dbContext = new QueryNinjasDbContext();
+                var students = dbContext.Students.ToList();
+                Console.WriteLine("==== Students List ====");
+                foreach (var student in students)
+                {
+                    Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Birth Date: {student.BirthDate.ToShortDateString()}, Email: {student.Email}");
+                }
+            }
+
+            public void AddStudent()
+            {
+                Console.Write("Enter student first name: ");
+                var firstName = Console.ReadLine();
+                Console.Write("Enter student last name: ");
+                var lastName = Console.ReadLine();
+                Console.Write("Enter student birth date (yyyy-mm-dd): ");
+                var birthDateInput = Console.ReadLine();
+                DateTime birthDate;
+                if (!DateTime.TryParse(birthDateInput, out birthDate))
+                {
+                    Console.WriteLine("Invalid date format.");
+                    return;
+                }
+                Console.Write("Enter student email: ");
+                var email = Console.ReadLine();
+                var dbContext = new QueryNinjasDbContext();
+                var student = new Models.Student
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    BirthDate = birthDate,
+                    Email = email
+                };
+                dbContext.Students.Add(student);
+                dbContext.SaveChanges();
+                Console.WriteLine("Student added successfully.");
+            }
+        }
 
             // 2. Edit Student (UPDATE)
             public void EditStudent()
@@ -435,89 +428,128 @@ namespace QueryNinja.UI
         // schema menu
         public class ScheduleMenu
             {
-                public void ShowSchedule()
+                while (true)
                 {
-                    while (true)
+                    Console.Clear();
+                    Console.WriteLine("==== Schedule administration ====");
+                    Console.WriteLine("1. View schedule");
+                    Console.WriteLine("2. Add schedule item");
+                    Console.WriteLine("3. Manage teachers");
+                    Console.WriteLine("4. Manage classrooms");
+                    Console.WriteLine("0. Back");
+                    Console.Write("Choice: ");
+                    var input = Console.ReadLine();
+                    switch (input)
                     {
-                        Console.Clear();
-                        Console.WriteLine("==== Schedule administration ====");
-                        Console.WriteLine("1. View schedule");
-                        Console.WriteLine("2. Add schedule item");
-                        Console.WriteLine("3. Manage teachers");
-                        Console.WriteLine("4. Manage classrooms");
-                        Console.WriteLine("0. Back");
-                        Console.Write("Choice: ");
-                        var input = Console.ReadLine();
-                        switch (input)
-                        {
-                            case "1":
-                                Console.WriteLine("View schedule not implemented yet.");
-                                Console.ReadKey();
-                                break;
-
-                            case "2":
-                                Console.WriteLine("Add scheduele item not implemented yet.");
-                                Console.ReadKey();
-                                break;
-
-                            case "3":
-                                Console.WriteLine("Manage teachers not implemented yet.");
-                                Console.ReadKey();
-                                break;
-
-                            case "4":
-                                Console.WriteLine("Manage classrooms not implemented yet.");
-                                Console.ReadKey();
-                                break;
-
-                            case "0":
-                                return;
-                            default:
-                                Console.WriteLine("Invalid choice.");
-                                Console.ReadKey();
-                                break;
-                        }
+                        case "1":
+                            Console.WriteLine("View schedule not implemented yet.");
+                            Console.ReadKey();
+                            break;
+                        case "2":
+                            Console.WriteLine("Add scheduele item not implemented yet.");
+                            Console.ReadKey();
+                            break;
+                        case "3":
+                            Console.WriteLine("Manage teachers not implemented yet.");
+                            Console.ReadKey();
+                            break;
+                        case "4":
+                            Console.WriteLine("Manage classrooms not implemented yet.");
+                            Console.ReadKey();
+                            break;
+                        case "0":
+                            return;
+                        default:
+                            Console.WriteLine("Invalid choice.");
+                            Console.ReadKey();
+                            break;
                     }
                 }
             }
-            // raport menu
-            public class ReportMenu
+        }
+
+        public class ReportMenu
+        {
+            private readonly ReportService _reportService;
+
+            public ReportMenu(ReportService reportService)
             {
-                public void ShowReport()
+                _reportService = reportService;
+            }
+
+            public void ShowReport()
+            {
+                while (true)
                 {
-                    while (true)
+                    Console.Clear();
+                    Console.WriteLine("==== Reports ====");
+                    Console.WriteLine("1. Active Courses Report");
+                    Console.WriteLine("2. Student Overview Report");
+                    Console.WriteLine("3. Register Student (Stored Procedure)");
+                    Console.WriteLine("0. Back");
+                    Console.Write("Choice: ");
+                    var input = Console.ReadLine();
+
+                    switch (input)
                     {
-                        Console.Clear();
-                        Console.WriteLine("==== Reports ====");
-                        Console.WriteLine("1. Approved students");
-                        Console.WriteLine("2. Non-approved students");
-                        Console.WriteLine("3. All students");
-                        Console.WriteLine("0. Back");
-                        Console.Write("Choice: ");
-                        var input = Console.ReadLine();
-                        switch (input)
-                        {
-                            case "1":
-                                Console.WriteLine("Generate report not implemented yet.");
-                                Console.ReadKey();
-                                break;
-                            case "2":
-                                Console.WriteLine("Generate report not implemented yet.");
-                                Console.ReadKey();
-                                break;
-                            case "3":
-                                Console.WriteLine("Generate report not implemented yet.");
-                                Console.ReadKey();
-                                break;
-                            case "0":
-                                return;
-                            default:
-                                Console.WriteLine("Invalid choice.");
-                                Console.ReadKey();
-                                break;
-                        }
+                        case "1":
+                            DisplayActiveCourses();
+                            Console.ReadKey();
+                            break;
+                        case "2":
+                            DisplayStudentOverview();
+                            Console.ReadKey();
+                            break;
+                        case "3":
+                            RegisterStudentViaSP();
+                            Console.ReadKey();
+                            break;
+                        case "0":
+                            return;
+                        default:
+                            Console.WriteLine("Invalid choice.");
+                            Console.ReadKey();
+                            break;
                     }
                 }
+            }
+
+            private void DisplayActiveCourses()
+            {
+                Console.Clear();
+                Console.WriteLine("--- Active Courses ---");
+                var courses = _reportService.GetActiveCoursesReport();
+
+                foreach (dynamic course in courses)
+                {
+                    Console.WriteLine($"ID: {course.CourseId}, Name: {course.CourseName}, End Date: {course.EndDate.ToShortDateString()}");
+                }
+            }
+
+            private void DisplayStudentOverview()
+            {
+                Console.Clear();
+                Console.WriteLine("--- Student Overview ---");
+                var overview = _reportService.GetStudentOverviewReport();
+
+                foreach (dynamic student in overview)
+                {
+                    Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Courses Enrolled: {student.TotalCourses}");
+                }
+            }
+
+            private void RegisterStudentViaSP()
+            {
+                Console.Clear();
+                Console.WriteLine("--- Register Student via Stored Procedure ---");
+                Console.Write("Student ID: ");
+                if (!int.TryParse(Console.ReadLine(), out int studentId)) return;
+
+                Console.Write("Course ID: ");
+                if (!int.TryParse(Console.ReadLine(), out int courseId)) return;
+
+                var result = _reportService.CallRegisterStudentSP(studentId, courseId);
+                Console.WriteLine($"SP Result: {result}");
             }
         }
     }

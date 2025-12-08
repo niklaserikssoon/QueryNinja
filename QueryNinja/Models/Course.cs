@@ -30,5 +30,6 @@ namespace QueryNinja.Models
         public Teacher Teacher { get; set; } = null!;
 
         public ICollection<Grade> Grades { get; set; } = new List<Grade>();
+
     }
 }

@@ -19,13 +19,14 @@ namespace QueryNinja.Data
         {
         }
 
-        public DbSet<Teacher> Teachers { get; set; }
-        public DbSet<ClassRoom> ClassRooms { get; set; }
+        public DbSet<Student> Students { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Grade> Grades { get; set; }
         public DbSet<Registration> Registrations { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
-        public DbSet<Student> Students { get; set; }
+        public DbSet<Teacher> Teachers { get; set; }
+        public DbSet<ClassRoom> ClassRooms { get; set; }
+        public DbSet<StoredProcedureResult> StoredProcedureResults { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -39,10 +40,11 @@ namespace QueryNinja.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // table names for EF to ignore already created pluralization conventions
+            modelBuilder.Entity<StoredProcedureResult>().HasNoKey();
+
             modelBuilder.Entity<Teacher>().ToTable("Teachers");
             modelBuilder.Entity<Student>().ToTable("Student");
-            //unique index
+
             modelBuilder.Entity<Teacher>()
                 .HasIndex(t => t.Email)
                 .IsUnique();
@@ -73,7 +75,6 @@ namespace QueryNinja.Data
                 .HasForeignKey(g => g.FkCourseId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //Seed-data, Teachers (AI-generated)
             modelBuilder.Entity<Teacher>().HasData(
                 new Teacher { TeacherId = 1, FirstName = "Karin", LastName = "Lund", Email = "karin.lund@school.com", AreaOfExpertise = "Backend Development" },
                 new Teacher { TeacherId = 2, FirstName = "Peter", LastName = "Sund", Email = "peter.sund@school.com", AreaOfExpertise = "Databases" },
@@ -81,7 +82,6 @@ namespace QueryNinja.Data
                 new Teacher { TeacherId = 4, FirstName = "Jonas", LastName = "Björk", Email = "jonas.bjork@school.com", AreaOfExpertise = "DevOps" }
             );
 
-            //Seed-data, ClassRooms (AI-generated)
             modelBuilder.Entity<ClassRoom>().HasData(
                 new ClassRoom { ClassRoomId = 1, RoomNumber = 101 },
                 new ClassRoom { ClassRoomId = 2, RoomNumber = 102 },
@@ -95,7 +95,6 @@ namespace QueryNinja.Data
                 new ClassRoom { ClassRoomId = 10, RoomNumber = 110 }
             );
 
-            //Seed-data, Courses (AI-generated)
             modelBuilder.Entity<Course>().HasData(
                 new Course { CourseId = 1, CourseName = "C# Programming", StartDate = new DateTime(2025, 1, 15, 0, 0, 0), EndDate = new DateTime(2025, 6, 15, 0, 0, 0), FkTeacherId = 1 },
                 new Course { CourseId = 2, CourseName = "Database Design", StartDate = new DateTime(2025, 1, 15, 0, 0, 0), EndDate = new DateTime(2025, 6, 15, 0, 0, 0), FkTeacherId = 2 },
@@ -109,7 +108,6 @@ namespace QueryNinja.Data
                 new Course { CourseId = 10, CourseName = "Security Fundamentals", StartDate = new DateTime(2025, 8, 20, 0, 0, 0), EndDate = new DateTime(2025, 12, 20, 0, 0, 0), FkTeacherId = 2 }
             );
 
-            //Seed-data, Schedules (AI-generated)
             modelBuilder.Entity<Schedule>().HasData(
                 new Schedule { ScheduleId = 1, FkCourseId = 1, FkClassRoomId = 1, StartTime = new DateTime(2025, 1, 15, 9, 0, 0), EndTime = new DateTime(2025, 1, 15, 11, 0, 0) },
                 new Schedule { ScheduleId = 2, FkCourseId = 2, FkClassRoomId = 2, StartTime = new DateTime(2025, 1, 15, 13, 0, 0), EndTime = new DateTime(2025, 1, 15, 15, 0, 0) },
@@ -121,9 +119,7 @@ namespace QueryNinja.Data
                 new Schedule { ScheduleId = 8, FkCourseId = 8, FkClassRoomId = 8, StartTime = new DateTime(2025, 8, 20, 9, 0, 0), EndTime = new DateTime(2025, 8, 20, 11, 0, 0) },
                 new Schedule { ScheduleId = 9, FkCourseId = 9, FkClassRoomId = 9, StartTime = new DateTime(2025, 1, 15, 13, 0, 0), EndTime = new DateTime(2025, 1, 15, 15, 0, 0) },
                 new Schedule { ScheduleId = 10, FkCourseId = 10, FkClassRoomId = 10, StartTime = new DateTime(2025, 8, 20, 10, 0, 0), EndTime = new DateTime(2025, 8, 20, 12, 0, 0) }
-           );
-
-               //Seeddata för student och registration saknas. Lägg till när student hämtats från SSMS 
-        }
-    }
-}
+            );
+        } 
+    } 
+} 
