@@ -105,6 +105,131 @@ namespace QueryNinja.UI
                     }
                 }
             }
+            public void CreateCourse()
+            {
+                Console.WriteLine("==== Create New Course ====");
+                Console.Write("Enter Course Name: ");
+                var courseName = Console.ReadLine();
+
+                Console.Write("Enter Start Date (yyyy-mm-dd): ");
+                if (!DateTime.TryParse(Console.ReadLine(), out DateTime startDate))
+                {
+                    Console.WriteLine("Invalid date format.");
+                    return;
+                }
+
+                Console.Write("Enter End Date (yyyy-mm-dd): ");
+                if (!DateTime.TryParse(Console.ReadLine(), out DateTime endDate))
+                {
+                    Console.WriteLine("Invalid date format.");
+                    return;
+                }
+
+                try
+                {
+                    var dbContext = new QueryNinjasDbContext();
+                    var course = new Course
+                    {
+                        CourseName = courseName,
+                        StartDate = startDate,
+                        EndDate = endDate
+                    };
+                    dbContext.Courses.Add(course);
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Course added successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error adding course: {ex.Message}");
+                }
+            }
+
+            public void ViewCourses()
+            {
+                Console.Clear();
+                Console.WriteLine("==== All Courses ====");
+                try
+                {
+                    var dbContext = new QueryNinjasDbContext();
+                    var courses = dbContext.Courses.ToList();
+
+                    if (courses.Count == 0) { Console.WriteLine("No courses found."); return; }
+
+                    foreach (var course in courses)
+                    {
+                        Console.WriteLine($"ID: {course.CourseId}, Name: {course.CourseName}, Start: {course.StartDate.ToShortDateString()}, End: {course.EndDate.ToShortDateString()}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error viewing courses: {ex.Message}");
+                }
+            }
+
+            // 3. View Active Courses
+            public void ViewActiveCourses()
+            {
+                Console.Clear();
+                Console.WriteLine("==== Active Courses ====");
+                try
+                {
+                    var today = DateTime.Today;
+                    var dbContext = new QueryNinjasDbContext();
+                    var activeCourses = dbContext.Courses
+                        .Where(c => c.StartDate <= today && c.EndDate >= today)
+                        .ToList();
+
+                    if (activeCourses.Count == 0) { Console.WriteLine("No active courses found."); return; }
+
+                    foreach (var course in activeCourses)
+                    {
+                        Console.WriteLine($"ID: {course.CourseId}, Name: {course.CourseName}, End: {course.EndDate.ToShortDateString()}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error viewing active courses: {ex.Message}");
+                }
+            }
+            public void ShowCourse()
+            {
+                while (true)
+                {
+                    
+                    var input = Console.ReadLine();
+
+                    switch (input)
+                    {
+                        case "1":
+                            CreateCourse();
+                            Console.ReadKey();
+                            break;
+
+                        case "2":
+                            ViewCourses(); 
+                            Console.ReadKey();
+                            break;
+
+                        case "3":
+                            ViewActiveCourses(); 
+                            Console.ReadKey();
+                            break;
+
+                        case "4":
+                            0           RegisterStudentOnCourse(); 
+                            Console.ReadKey();
+                            break;
+
+                        case "0":
+                            return;
+
+                        default:
+                            Console.WriteLine("Invalid choice.");
+                            Console.ReadKey();
+                            break;
+                    }
+                }
+            }
 
             // student menu
             public class studentMenu
@@ -200,8 +325,115 @@ namespace QueryNinja.UI
                 }
             }
 
-            // schema menu
-            public class ScheduleMenu
+            // 2. Edit Student (UPDATE)
+            public void EditStudent()
+            {
+                Console.WriteLine("==== Edit Student ====");
+                Console.Write("Enter Student ID to edit: ");
+                if (!int.TryParse(Console.ReadLine(), out int studentId)) return;
+
+                try
+                {
+                    var dbContext = new QueryNinjasDbContext();
+                    var studentToEdit = dbContext.Students.Find(studentId);
+
+                    if (studentToEdit == null)
+                    {
+                        Console.WriteLine("Student not found.");
+                        return;
+                    }
+
+                    Console.WriteLine($"Current Name: {studentToEdit.FirstName}. Enter new first name (leave blank to keep current):");
+                    var newFirstName = Console.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(newFirstName))
+                    {
+                        studentToEdit.FirstName = newFirstName;
+                    }
+
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Student updated successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error editing student: {ex.Message}");
+                }
+            }
+
+            // 3. Remove Student (DELETE)
+            public void RemoveStudent()
+            {
+                Console.WriteLine("==== Remove Student ====");
+                Console.Write("Enter Student ID to remove: ");
+                if (!int.TryParse(Console.ReadLine(), out int studentId)) return;
+
+                try
+                {
+                    var dbContext = new QueryNinjasDbContext();
+                    var studentToRemove = dbContext.Students.Find(studentId);
+
+                    if (studentToRemove == null)
+                    {
+                        Console.WriteLine("Student not found.");
+                        return;
+                    }
+
+                    dbContext.Students.Remove(studentToRemove);
+                    dbContext.SaveChanges();
+                    Console.WriteLine($"Student ID {studentId} removed successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error removing student: {ex.Message}");
+                }
+            }
+
+            // 5. View Student Details (Complex READ/JOIN)
+            public void ViewStudentDetails()
+            {
+                Console.WriteLine("==== View Student Details and Records ====");
+                Console.Write("Enter Student ID: ");
+                if (!int.TryParse(Console.ReadLine(), out int studentId)) return;
+
+                try
+                {
+                    var dbContext = new QueryNinjasDbContext();
+
+                    // Complex query to join Grades, Courses, and Teachers
+                    var records = dbContext.Grades
+                        .Where(g => g.FkStudentId == studentId)
+                        .Include(g => g.Student)
+                        .Include(g => g.Course)
+                        .Include(g => g.Teacher)
+                        .ToList();
+
+                    if (records.Count == 0)
+                    {
+                        Console.WriteLine($"No records found for Student ID {studentId}.");
+                        return;
+                    }
+
+                    Console.WriteLine($"\n--- Records for {records.First().Student.FirstName} {records.First().Student.LastName} (ID: {studentId}) ---");
+                    Console.WriteLine("{0,-20} {1,-10} {2,-20} {3}", "Course", "Grade", "Teacher", "Date Set");
+                    Console.WriteLine("--------------------------------------------------------------------------------");
+
+                    foreach (var record in records)
+                    {
+                        Console.WriteLine("{0,-20} {1,-10} {2,-20} {3}",
+                            record.Course.CourseName,
+                            record.GradeValue,
+                            record.Teacher.FirstName + " " + record.Teacher.LastName,
+                            record.DateSet.ToShortDateString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error viewing details: {ex.Message}");
+                }
+            }
+        }
+
+        // schema menu
+        public class ScheduleMenu
             {
                 public void ShowSchedule()
                 {
