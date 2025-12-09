@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using QueryNinja.Service;
 using QueryNinja.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace QueryNinja.UI
 {
@@ -78,23 +79,28 @@ namespace QueryNinja.UI
                     switch (input)
                     {
                         case "1":
-                            Console.WriteLine("Create course not implemented yet.");
+                            CreateCourse();
                             Console.ReadKey();
                             break;
+
                         case "2":
-                            Console.WriteLine("List courses not implemented.");
+                            ViewCourses();
                             Console.ReadKey();
                             break;
+
                         case "3":
-                            Console.WriteLine("Active courses not implemented.");
+                            ViewActiveCourses();
                             Console.ReadKey();
                             break;
+
                         case "4":
-                            Console.WriteLine("Register student on course not implemented.");
+                            RegisterStudentOnCourse();
                             Console.ReadKey();
                             break;
+
                         case "0":
                             return;
+
                         default:
                             Console.WriteLine("Invalid choice.");
                             Console.ReadKey();
@@ -102,7 +108,9 @@ namespace QueryNinja.UI
                     }
                 }
             }
-        }
+
+
+            //1.
             public void CreateCourse()
             {
                 Console.WriteLine("==== Create New Course ====");
@@ -142,6 +150,7 @@ namespace QueryNinja.UI
                 }
             }
 
+            //2.
             public void ViewCourses()
             {
                 Console.Clear();
@@ -189,46 +198,58 @@ namespace QueryNinja.UI
                     Console.WriteLine($"Error viewing active courses: {ex.Message}");
                 }
             }
-            public void ShowCourse()
+
+            // 4. Register Student On Course
+
+            public void RegisterStudentOnCourse()
             {
-                while (true)
+                Console.Clear();
+                Console.WriteLine("==== Register student on course ====");
+                Console.Write("Enter student ID: ");
+
+                if (!int.TryParse(Console.ReadLine(), out int studentId)) return;
+
+                Console.Write("Enter Course ID: ");
+                if (!int.TryParse(Console.ReadLine(), out int courseId)) return;
+
+                using (var dbContext = new QueryNinjasDbContext())
                 {
-                    
-                    var input = Console.ReadLine();
+                    var student = dbContext.Students.Find(studentId);
+                    var course = dbContext.Courses.Find(courseId);
 
-                    switch (input)
+                    if (student == null || course == null)
                     {
-                        case "1":
-                            CreateCourse();
-                            Console.ReadKey();
-                            break;
-
-                        case "2":
-                            ViewCourses(); 
-                            Console.ReadKey();
-                            break;
-
-                        case "3":
-                            ViewActiveCourses(); 
-                            Console.ReadKey();
-                            break;
-
-                        case "4":
-                            0           RegisterStudentOnCourse(); 
-                            Console.ReadKey();
-                            break;
-
-                        case "0":
-                            return;
-
-                        default:
-                            Console.WriteLine("Invalid choice.");
-                            Console.ReadKey();
-                            break;
+                        Console.WriteLine("Invalid student or course ID.");
+                        return;
                     }
+
+                    //check if student is already registered on that course
+                    var alreadyRegistered = dbContext.Registrations
+                        .Any(r => r.FkStudentId == studentId && r.FkCourseId == courseId);
+
+                    if (alreadyRegistered)
+                    {
+                        Console.WriteLine($"Student {student.FirstName} {student.LastName} is already registered on {course.CourseName}.");
+                        return;
+                    }
+
+                    // create new registration
+                    var registration = new Registration
+                    {
+                        FkStudentId = studentId,
+                        FkCourseId = courseId,
+                        RegistrationDate = DateTime.Now
+                    };
+
+                    dbContext.Registrations.Add(registration);
+                    dbContext.SaveChanges();
+
+                    Console.WriteLine($"Student {student.FirstName} {student.LastName} registered on {course.CourseName}.");
                 }
             }
-
+        }
+                
+    }
         public class studentMenu
         {
             public void ShowStudent()
@@ -252,20 +273,19 @@ namespace QueryNinja.UI
                             Console.ReadKey();
                             break;
                         case "2":
-                            Console.WriteLine("Press any key to continue...");
+                            EditStudent();
                             Console.ReadKey();
                             break;
                         case "3":
-                            Console.WriteLine("Press any key to continue...");
+                            RemoveStudent();
                             Console.ReadKey();
                             break;
                         case "4":
                             ViewStudents();
-                            Console.WriteLine("Press any key to continue...");
                             Console.ReadKey();
                             break;
                         case "5":
-                            Console.WriteLine("Press any key to continue...");
+                           ViewStudentDetails();
                             Console.ReadKey();
                             break;
                         case "0":
@@ -275,16 +295,6 @@ namespace QueryNinja.UI
                             Console.ReadKey();
                             break;
                     }
-                }
-            }
-            public void ViewStudents()
-            {
-                var dbContext = new QueryNinjasDbContext();
-                var students = dbContext.Students.ToList();
-                Console.WriteLine("==== Students List ====");
-                foreach (var student in students)
-                {
-                    Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Birth Date: {student.BirthDate.ToShortDateString()}, Email: {student.Email}");
                 }
             }
 
@@ -316,7 +326,7 @@ namespace QueryNinja.UI
                 dbContext.SaveChanges();
                 Console.WriteLine("Student added successfully.");
             }
-        }
+
 
             // 2. Edit Student (UPDATE)
             public void EditStudent()
@@ -379,6 +389,17 @@ namespace QueryNinja.UI
                     Console.WriteLine($"Error removing student: {ex.Message}");
                 }
             }
+            //4.
+            public void ViewStudents()
+            {
+                var dbContext = new QueryNinjasDbContext();
+                var students = dbContext.Students.ToList();
+                Console.WriteLine("==== Students List ====");
+                foreach (var student in students)
+                {
+                    Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Birth Date: {student.BirthDate.ToShortDateString()}, Email: {student.Email}");
+                }
+            }
 
             // 5. View Student Details (Complex READ/JOIN)
             public void ViewStudentDetails()
@@ -406,16 +427,15 @@ namespace QueryNinja.UI
                     }
 
                     Console.WriteLine($"\n--- Records for {records.First().Student.FirstName} {records.First().Student.LastName} (ID: {studentId}) ---");
-                    Console.WriteLine("{0,-20} {1,-10} {2,-20} {3}", "Course", "Grade", "Teacher", "Date Set");
+                    Console.WriteLine("{0,-20} {1,-10} {2,-20} {3}", "Course", "Grade", "Teacher");
                     Console.WriteLine("--------------------------------------------------------------------------------");
 
                     foreach (var record in records)
                     {
-                        Console.WriteLine("{0,-20} {1,-10} {2,-20} {3}",
+                        Console.WriteLine("{0,-20} {1,-10} {2,-20}",
                             record.Course.CourseName,
                             record.GradeValue,
-                            record.Teacher.FirstName + " " + record.Teacher.LastName,
-                            record.DateSet.ToShortDateString());
+                            record.Teacher.FirstName + " " + record.Teacher.LastName);
                     }
                 }
                 catch (Exception ex)
@@ -424,10 +444,13 @@ namespace QueryNinja.UI
                 }
             }
         }
+        
 
         // schema menu
         public class ScheduleMenu
             {
+            public void ShowSchedule()
+            { 
                 while (true)
                 {
                     Console.Clear();
@@ -551,6 +574,5 @@ namespace QueryNinja.UI
                 var result = _reportService.CallRegisterStudentSP(studentId, courseId);
                 Console.WriteLine($"SP Result: {result}");
             }
-        }
     }
 }
