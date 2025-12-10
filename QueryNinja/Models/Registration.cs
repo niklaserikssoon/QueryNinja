@@ -8,10 +8,9 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
+    // Represents a registration entity linking students to courses with a registration date.
     public class Registration
     {
-
-
         [Key]
         public int RegistrationId { get; set; }
         public DateTime RegistrationDate { get; set; }

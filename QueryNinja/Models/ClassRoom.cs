@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
+    // Represents a classroom entity with an ID and room number.
     public class ClassRoom
     {
         [Key]
