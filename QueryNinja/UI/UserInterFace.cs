@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using QueryNinja.Service;
 using QueryNinja.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Transactions;
 
 namespace QueryNinja.UI
 {
@@ -562,41 +563,218 @@ namespace QueryNinja.UI
 
         private void ManageTeachers()
         {
-            using (var dbContext = new Data.QueryNinjasDbContext())
+            Console.Clear();
+            var dbContext = new QueryNinjasDbContext();
+            Console.WriteLine("==== Manage Teachers ====");
+            Console.WriteLine("1. Add teacher");
+            Console.WriteLine("2. Edit teacher");
+            Console.WriteLine("3. Remove teacher");
+            Console.WriteLine("4. View all teachers");
+            Console.WriteLine("0. Back");
+            var input = Console.ReadLine();
+
+            switch (input)
             {
-                var teachers = dbContext.Teachers.ToList();
-                Console.WriteLine("==== Teachers List ====");
-                foreach (var teacher in teachers)
-                {
-                    Console.WriteLine($"ID: {teacher.TeacherId}, Name: {teacher.FirstName} {teacher.LastName}, Email: {teacher.Email}");
-                }
-            }
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadKey();
+                case "1":
+                    Console.Write("Enter teacher first name: ");
+                    var firstName = Console.ReadLine();
+                    Console.Write("Enter teacher last name: ");
+                    var lastName = Console.ReadLine();
+                    Console.Write("Enter teacher email: ");
+                    var email = Console.ReadLine();
+                    if (dbContext.Teachers.Any(t => t.Email == email))
+                    {
+                        Console.WriteLine("This email is already registered. Email must be unique.");
+                        return;
+                    }
+                    Console.Write("Enter area of expertise (not mandatory, max 1 per teacher): ");
+                    var aOfExpertise = Console.ReadLine();
+
+                    var teacher = new Teacher
+                    {
+                        FirstName = firstName,
+                        LastName = lastName,
+                        Email = email,
+                        AreaOfExpertise = aOfExpertise
+                    };
+                    dbContext.Teachers.Add(teacher);
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Teacher added successfully.");
+                    Console.ReadKey();
+                    break;
+
+                case "2":
+                    Console.Write("Enter teacherId to edit: ");
+                    var teacherIdInput = int.TryParse(Console.ReadLine(), out int teacherId);
+                    var teacherToEdit = dbContext.Teachers.Find(teacherId);
+                    if (teacherToEdit == null)
+                    {
+                        Console.WriteLine("Teacher not found.");
+                        break;
+                    }
+
+                    Console.WriteLine("What do you want to edit? ");
+                    Console.WriteLine("1. First name");
+                    Console.WriteLine("2. Last name");
+                    Console.WriteLine("3. Email");
+                    Console.WriteLine("4. Area of expertise");
+                    Console.WriteLine("0. Back");
+                    var choice = Console.ReadLine();
+
+                    switch (choice)
+                    {
+                        case "1": 
+                            Console.Write("Enter new first name: ");
+                            teacherToEdit.FirstName = Console.ReadLine();
+                            break;
+
+                        case "2":
+                            Console.Write("Enter new last name: ");
+                            teacherToEdit.LastName = Console.ReadLine();
+                            break;
+
+                        case "3":
+                            Console.Write("Enter new email: ");
+                            teacherToEdit.Email = Console.ReadLine();
+                            break;
+
+                        case "4":
+                            Console.Write("Enter new area of expertise: ");
+                            teacherToEdit.AreaOfExpertise = Console.ReadLine();
+                            break;
+
+                        case "0":
+                            return;
+
+                        default:
+                            Console.WriteLine("Invalid choice.");
+                            Console.ReadKey();
+                            break;
+                    }
+
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Teacher updated successfully.");
+                    Console.ReadKey();
+                    break;
+
+
+                case "3":
+                    Console.WriteLine("Enter teacherId to remove: ");
+                    if (!int.TryParse(Console.ReadLine(), out int removeTeacherId))
+                    {
+                        Console.WriteLine("Invalid input. Please enter a valid number.");
+                        Console.ReadKey();
+                        break;
+                    }
+                    var teacherToRemove = dbContext.Teachers.Find(removeTeacherId);
+                    if (teacherToRemove == null)
+                    {
+                        Console.WriteLine("Teacher not found.");
+                        Console.ReadKey();
+                        break;
+                    }
+
+                    Console.WriteLine($"Are you sure that you want to remove {teacherToRemove.FirstName} {teacherToRemove.LastName}? (Y/N)");
+                    var decision= Console.ReadLine(); 
+
+                    if (decision?.ToUpper() == "Y")
+                    {
+                        dbContext.Teachers.Remove(teacherToRemove);
+                        dbContext.SaveChanges();
+                        Console.WriteLine("Teacher removed successfully.");
+                        Console.ReadKey(); 
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("Operation cancelled");
+                        Console.ReadKey();
+                    }
+                    break;
+
+                case "4":
+                    var teachers = dbContext.Teachers.ToList();
+                    Console.WriteLine("==== Teachers List ====");
+                    foreach (var t in teachers)
+                    {
+                        Console.WriteLine($"ID: {t.TeacherId}, Name: {t.FirstName} {t.LastName}, Email: {t.Email}, Area of expertise: {t.AreaOfExpertise}");
+                    };
+                    Console.ReadKey();
+                    break;
+
+                case "0":
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    Console.ReadKey();
+                    break;
+            }        
 
         }
 
         private void ManageClassrooms()
         {
-            using (var dbContext = new Data.QueryNinjasDbContext())
+            Console.Clear();
+            var dbContext = new QueryNinjasDbContext();
+            Console.WriteLine("==== Manage Classrooms ====");
+            Console.WriteLine("1. Add classroom");
+            Console.WriteLine("2. View all classrooms");
+            Console.WriteLine("0. Back");
+            var input = Console.ReadLine();
+
+            switch (input)
             {
-                var rooms = dbContext.ClassRooms.ToList();
-                Console.WriteLine("==== Classrooms List ====");
-                foreach (var room in rooms)
-                {
-                    Console.WriteLine($"ID: {room.ClassRoomId}, Room Number: {room.RoomNumber}");
-                }
+                case "1":
+                    Console.Write("Enter room number: ");
+                    var roomNumber = int.TryParse(Console.ReadLine(), out int roomNr);
+                    if (dbContext.ClassRooms.Any(c => c.RoomNumber == roomNr))
+                    {
+                        Console.WriteLine("Room number already exists. The number must be unique.");
+                        Console.ReadKey();
+                        return;
+                    }
+                    
+                    var classRoom = new ClassRoom
+                    {
+                        RoomNumber = roomNr
+                    };
+                    dbContext.ClassRooms.Add(classRoom);
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Classroom added successfully.");
+                    Console.ReadKey();
+                    break;
+
+                case "2":
+                    var rooms = dbContext.ClassRooms.ToList();
+                    Console.WriteLine("==== List of Classrooms ====");
+                    foreach (var room in rooms)
+                    {
+                        Console.WriteLine($"ID: {room.ClassRoomId}, Room Number: {room.RoomNumber}");
+                    }
+                    Console.ReadKey();
+                    break;
+            
+                case "0":
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    Console.ReadKey();
+                    break;
             }
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadKey();
 
         }
+        
+            
+
     }
+}
 
 
 
     public class ReportMenu
-        {
+    {
             private readonly ReportService _reportService;
 
             public ReportMenu(ReportService reportService)
@@ -679,4 +857,4 @@ namespace QueryNinja.UI
                 Console.WriteLine($"SP Result: {result}");
             }
     }
-}
+
