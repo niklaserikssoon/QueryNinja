@@ -444,54 +444,158 @@ namespace QueryNinja.UI
                 }
             }
         }
-        
 
-        // schema menu
-        public class ScheduleMenu
+
+    // schema menu
+    public class ScheduleMenu
+    {
+        public void ShowSchedule()
+        {
+            while (true)
             {
-            public void ShowSchedule()
-            { 
-                while (true)
+                Console.Clear();
+                Console.WriteLine("==== Schedule administration ====");
+                Console.WriteLine("1. View schedule");
+                Console.WriteLine("2. Add schedule item");
+                Console.WriteLine("3. Manage teachers");
+                Console.WriteLine("4. Manage classrooms");
+                Console.WriteLine("0. Back");
+                Console.Write("Choice: ");
+                var input = Console.ReadLine();
+                switch (input)
                 {
-                    Console.Clear();
-                    Console.WriteLine("==== Schedule administration ====");
-                    Console.WriteLine("1. View schedule");
-                    Console.WriteLine("2. Add schedule item");
-                    Console.WriteLine("3. Manage teachers");
-                    Console.WriteLine("4. Manage classrooms");
-                    Console.WriteLine("0. Back");
-                    Console.Write("Choice: ");
-                    var input = Console.ReadLine();
-                    switch (input)
-                    {
-                        case "1":
-                            Console.WriteLine("View schedule not implemented yet.");
-                            Console.ReadKey();
-                            break;
-                        case "2":
-                            Console.WriteLine("Add scheduele item not implemented yet.");
-                            Console.ReadKey();
-                            break;
-                        case "3":
-                            Console.WriteLine("Manage teachers not implemented yet.");
-                            Console.ReadKey();
-                            break;
-                        case "4":
-                            Console.WriteLine("Manage classrooms not implemented yet.");
-                            Console.ReadKey();
-                            break;
-                        case "0":
-                            return;
-                        default:
-                            Console.WriteLine("Invalid choice.");
-                            Console.ReadKey();
-                            break;
-                    }
+                    case "1":
+                        ViewSchedule();
+                        break;
+
+                    case "2":
+                        AddScheduleItem();
+                        break;
+
+                    case "3":
+                        ManageTeachers();
+                        break;
+
+                    case "4":
+                        ManageClassrooms();
+                        break;
+
+                    case "0":
+                        return;
+
+                    default:
+                        Console.WriteLine("Invalid choice.");
+                        Console.ReadKey();
+                        break;
                 }
             }
         }
 
-        public class ReportMenu
+        private void ViewSchedule()
+        {
+            var dbContext = new Data.QueryNinjasDbContext();
+            var schedules = dbContext.Schedules
+                .Include(s => s.Course)     
+                .Include(s => s.ClassRoom)
+                .ToList();
+
+            Console.WriteLine("==== Schedule List ====");
+            foreach (var schedule in schedules)
+            {
+                Console.WriteLine(
+                    $"ID: {schedule.ScheduleId}, " +
+                    $"Course: {schedule.Course?.CourseName}, " +
+                    $"Classroom: {schedule.ClassRoom?.RoomNumber}, " +
+                    $"Start: {schedule.StartTime}, End: {schedule.EndTime}"
+
+                );
+            }
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+
+
+        }
+
+        private void AddScheduleItem()
+        {
+            Console.Clear();
+            Console.WriteLine("=== Add Schedule Item ===");
+
+            Console.Write("Enter course ID: ");
+            int courseId = int.Parse(Console.ReadLine());
+
+            Console.Write("Enter classroom ID: ");
+            int classRoomId = int.Parse(Console.ReadLine());
+
+            Console.Write("Enter start time (yyyy-mm-dd HH:mm): ");
+            DateTime startTime;
+            while (!DateTime.TryParse(Console.ReadLine(), out startTime))
+            {
+                Console.Write("Invalid format. Try again (yyyy-mm-dd HH:mm): ");
+            }
+
+            Console.Write("Enter end time (yyyy-mm-dd HH:mm): ");
+            DateTime endTime;
+            while (!DateTime.TryParse(Console.ReadLine(), out endTime))
+            {
+                Console.Write("Invalid format. Try again (yyyy-mm-dd HH:mm): ");
+            }
+
+            using (var dbContext = new Data.QueryNinjasDbContext())
+            {
+                var newSchedule = new Schedule
+                {
+                    FkCourseId = courseId,
+                    FkClassRoomId = classRoomId,
+                    StartTime = startTime,
+                    EndTime = endTime
+                };
+
+                dbContext.Schedules.Add(newSchedule);
+                dbContext.SaveChanges();
+            }
+
+            Console.WriteLine("Schedule item saved to database!");
+            Console.ReadKey();
+
+        }
+
+        private void ManageTeachers()
+        {
+            using (var dbContext = new Data.QueryNinjasDbContext())
+            {
+                var teachers = dbContext.Teachers.ToList();
+                Console.WriteLine("==== Teachers List ====");
+                foreach (var teacher in teachers)
+                {
+                    Console.WriteLine($"ID: {teacher.TeacherId}, Name: {teacher.FirstName} {teacher.LastName}, Email: {teacher.Email}");
+                }
+            }
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+
+        }
+
+        private void ManageClassrooms()
+        {
+            using (var dbContext = new Data.QueryNinjasDbContext())
+            {
+                var rooms = dbContext.ClassRooms.ToList();
+                Console.WriteLine("==== Classrooms List ====");
+                foreach (var room in rooms)
+                {
+                    Console.WriteLine($"ID: {room.ClassRoomId}, Room Number: {room.RoomNumber}");
+                }
+            }
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+
+        }
+    }
+
+
+
+    public class ReportMenu
         {
             private readonly ReportService _reportService;
 
