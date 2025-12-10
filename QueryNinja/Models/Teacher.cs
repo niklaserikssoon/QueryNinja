@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
+    // Represents a teacher entity with personal details and associated courses and grades.
     public class Teacher
     {
         [Key]

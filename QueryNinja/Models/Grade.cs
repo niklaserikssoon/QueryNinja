@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
+    // Represents a grade entity linking students, courses, and teachers.
     public class Grade
     {
         [Key]

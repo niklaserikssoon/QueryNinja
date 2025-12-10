@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
+    // Represents a course entity with details such as name, dates, and associated teacher.
     public class Course
     {
         [Key]

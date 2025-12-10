@@ -24,6 +24,7 @@ namespace QueryNinja.UI
         {
             while (true)
             {
+                // main start menu
                 Console.Clear();
                 Console.WriteLine("==== Main menu ====");
                 Console.WriteLine("1. Course administration");
@@ -65,6 +66,7 @@ namespace QueryNinja.UI
             {
                 while (true)
                 {
+                    // course administration menu
                     Console.Clear();
                     Console.WriteLine("==== Course administration ====");
                     Console.WriteLine("1. Create course");
@@ -110,7 +112,7 @@ namespace QueryNinja.UI
             }
 
 
-            //1.
+            // method to create a new course
             public void CreateCourse()
             {
                 Console.WriteLine("==== Create New Course ====");
@@ -150,7 +152,7 @@ namespace QueryNinja.UI
                 }
             }
 
-            //2.
+            // method to view all courses
             public void ViewCourses()
             {
                 Console.Clear();
@@ -256,6 +258,7 @@ namespace QueryNinja.UI
             {
                 while (true)
                 {
+                    // student administration menu
                     Console.Clear();
                     Console.WriteLine("==== Student administration ====");
                     Console.WriteLine("1. Add student");
@@ -297,9 +300,9 @@ namespace QueryNinja.UI
                     }
                 }
             }
-
-            public void AddStudent()
-            {
+                // 1. Add Student (CREATE)
+                public void AddStudent()
+                {
                 Console.Write("Enter student first name: ");
                 var firstName = Console.ReadLine();
                 Console.Write("Enter student last name: ");
@@ -389,8 +392,8 @@ namespace QueryNinja.UI
                     Console.WriteLine($"Error removing student: {ex.Message}");
                 }
             }
-            //4.
-            public void ViewStudents()
+        // 4. View Students (READ)
+        public void ViewStudents()
             {
                 var dbContext = new QueryNinjasDbContext();
                 var students = dbContext.Students.ToList();
@@ -490,7 +493,7 @@ namespace QueryNinja.UI
                 }
             }
         }
-
+        // 1. View Schedule
         private void ViewSchedule()
         {
             var dbContext = new Data.QueryNinjasDbContext();
@@ -515,7 +518,7 @@ namespace QueryNinja.UI
 
 
         }
-
+        // 2. Add Schedule Item
         private void AddScheduleItem()
         {
             Console.Clear();
@@ -559,7 +562,7 @@ namespace QueryNinja.UI
             Console.ReadKey();
 
         }
-
+        // 3. Manage Teachers
         private void ManageTeachers()
         {
             using (var dbContext = new Data.QueryNinjasDbContext())
@@ -575,7 +578,7 @@ namespace QueryNinja.UI
             Console.ReadKey();
 
         }
-
+        // 4. Manage Classrooms
         private void ManageClassrooms()
         {
             using (var dbContext = new Data.QueryNinjasDbContext())
@@ -603,8 +606,8 @@ namespace QueryNinja.UI
             {
                 _reportService = reportService;
             }
-
-            public void ShowReport()
+        // Reports menu
+        public void ShowReport()
             {
                 while (true)
                 {
@@ -640,8 +643,8 @@ namespace QueryNinja.UI
                     }
                 }
             }
-
-            private void DisplayActiveCourses()
+        // 1. Active Courses Report
+        private void DisplayActiveCourses()
             {
                 Console.Clear();
                 Console.WriteLine("--- Active Courses ---");
@@ -652,8 +655,8 @@ namespace QueryNinja.UI
                     Console.WriteLine($"ID: {course.CourseId}, Name: {course.CourseName}, End Date: {course.EndDate.ToShortDateString()}");
                 }
             }
-
-            private void DisplayStudentOverview()
+        // 2. Student Overview Report
+        private void DisplayStudentOverview()
             {
                 Console.Clear();
                 Console.WriteLine("--- Student Overview ---");
@@ -664,8 +667,8 @@ namespace QueryNinja.UI
                     Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Courses Enrolled: {student.TotalCourses}");
                 }
             }
-
-            private void RegisterStudentViaSP()
+        // 3. Register Student via Stored Procedure
+        private void RegisterStudentViaSP()
             {
                 Console.Clear();
                 Console.WriteLine("--- Register Student via Stored Procedure ---");
