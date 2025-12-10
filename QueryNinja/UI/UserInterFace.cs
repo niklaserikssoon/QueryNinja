@@ -69,7 +69,7 @@ namespace QueryNinja.UI
                     Console.WriteLine("==== Course administration ====");
                     Console.WriteLine("1. Create course");
                     Console.WriteLine("2. View courses");
-                    Console.WriteLine("3. View active courses");
+                    Console.WriteLine("3. View active courses and students");
                     Console.WriteLine("4. Register student on course");
                     Console.WriteLine("0. Back");
                     Console.Write("Choice: ");
@@ -177,20 +177,40 @@ namespace QueryNinja.UI
             public void ViewActiveCourses()
             {
                 Console.Clear();
-                Console.WriteLine("==== Active Courses ====");
+                Console.WriteLine("==== Active courses and students ====");
                 try
                 {
                     var today = DateTime.Today;
+                    Console.WriteLine($"Today is: {today}\n");
                     var dbContext = new QueryNinjasDbContext();
-                    var activeCourses = dbContext.Courses
-                        .Where(c => c.StartDate <= today && c.EndDate >= today)
+                    var activeCoursesAndStudents = dbContext.Courses
+                        .Join(dbContext.Registrations,
+                        c => c.CourseId,
+                        r => r.FkCourseId,
+                        (c, r) => new { c, r })
+                        .Join(dbContext.Students,
+                        cr => cr.r.FkStudentId,
+                        s => s.StudentID,
+                        (cr, s) => new
+                        {
+                            Course = cr.c,
+                            Student = s
+                        })
+
+                        .Where(crs => crs.Course.StartDate <= today && crs.Course.EndDate >= today)
+                        .GroupBy(crs => crs.Course.CourseName)
                         .ToList();
 
-                    if (activeCourses.Count == 0) { Console.WriteLine("No active courses found."); return; }
+                    if (activeCoursesAndStudents.Count == 0) { Console.WriteLine("No active courses found."); return; }
 
-                    foreach (var course in activeCourses)
+                    foreach (var courseGroup in activeCoursesAndStudents)
                     {
-                        Console.WriteLine($"ID: {course.CourseId}, Name: {course.CourseName}, End: {course.EndDate.ToShortDateString()}");
+                        Console.WriteLine($"Course: {courseGroup.Key}");
+                        foreach (var item in courseGroup)
+                        {
+                            Console.WriteLine($"- {item.Student.FirstName} {item.Student.LastName}");
+                        }
+                        Console.WriteLine();
                     }
                 }
                 catch (Exception ex)

@@ -33,7 +33,7 @@ namespace QueryNinja.Data
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlServer(
-                  "Server=localhost;Database=Query-ninjas;Trusted_Connection=True;TrustServerCertificate=True;"
+                 "Server=localhost;Database=Query-ninjas;Trusted_Connection=True;TrustServerCertificate=True;"
                 );
             }
         }
