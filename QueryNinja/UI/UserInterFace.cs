@@ -522,6 +522,7 @@ namespace QueryNinja.UI
             var schedules = dbContext.Schedules
                 .Include(s => s.Course)     
                 .Include(s => s.ClassRoom)
+                .OrderBy(s => s.StartTime)
                 .ToList();
 
             Console.WriteLine("==== Schedule List ====");
@@ -537,9 +538,8 @@ namespace QueryNinja.UI
             }
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
-
-
         }
+
         // 2. Add Schedule Item
         private void AddScheduleItem()
         {
