@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QueryNinja.Data;
 
@@ -11,9 +12,11 @@ using QueryNinja.Data;
 namespace QueryNinja.Migrations
 {
     [DbContext(typeof(QueryNinjasDbContext))]
-    partial class QueryNinjasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251208204215_AddDateToGrade")]
+    partial class AddDateToGrade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
