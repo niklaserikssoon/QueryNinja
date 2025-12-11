@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
+    // Represents a schedule entity linking courses to classrooms with start and end times.
     public class Schedule
     {
         [Key]
