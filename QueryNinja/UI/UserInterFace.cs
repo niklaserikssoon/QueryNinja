@@ -428,6 +428,7 @@ namespace QueryNinja.UI
             // 5. View Student Details (Complex READ/JOIN)
             public void ViewStudentDetails()
             {
+                Console.Clear();
                 Console.WriteLine("==== View Student Details and Records ====");
                 Console.Write("Enter Student ID: ");
                 if (!int.TryParse(Console.ReadLine(), out int studentId)) return;
@@ -451,7 +452,7 @@ namespace QueryNinja.UI
                     }
 
                     Console.WriteLine($"\n--- Records for {records.First().Student.FirstName} {records.First().Student.LastName} (ID: {studentId}) ---");
-                    Console.WriteLine("{0,-20} {1,-10} {2,-20} {3}", "Course", "Grade", "Teacher");
+                    Console.WriteLine("{0,-20} {1,-10} {2,-20}", "Course", "Grade", "Teacher");
                     Console.WriteLine("--------------------------------------------------------------------------------");
 
                     foreach (var record in records)
