@@ -13,14 +13,17 @@ namespace QueryNinja.Models
     {
         [Key]
         public int RegistrationId { get; set; }
+
         public DateTime RegistrationDate { get; set; }
 
         public int FkStudentId { get; set; }
         [ForeignKey("FkStudentId")]
+
         public Student Student { get; set; } = null!;
 
         public int FkCourseId { get; set; }
         [ForeignKey("FkCourseId")]
+
         public Course Course { get; set; } = null!;
 
     }
