@@ -132,12 +132,15 @@ namespace QueryNinja.UI
                     Console.WriteLine("Invalid date format.");
                     return;
                 }
+                Console.Write("Add teacher to course. ID:  ");
+                var teacherInput = Console.ReadLine();
 
                 try
                 {
                     var dbContext = new QueryNinjasDbContext();
                     var course = new Course
                     {
+                        FkTeacherId = int.Parse(teacherInput),
                         CourseName = courseName,
                         StartDate = startDate,
                         EndDate = endDate
