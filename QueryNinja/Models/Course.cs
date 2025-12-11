@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace QueryNinja.Models
 {
+    // Represents a course entity with details such as name, dates, and associated teacher.
     public class Course
     {
         [Key]
@@ -30,5 +31,6 @@ namespace QueryNinja.Models
         public Teacher Teacher { get; set; } = null!;
 
         public ICollection<Grade> Grades { get; set; } = new List<Grade>();
+
     }
 }

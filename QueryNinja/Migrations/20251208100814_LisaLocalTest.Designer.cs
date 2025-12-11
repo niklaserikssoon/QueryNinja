@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QueryNinja.Data;
 
@@ -11,9 +12,11 @@ using QueryNinja.Data;
 namespace QueryNinja.Migrations
 {
     [DbContext(typeof(QueryNinjasDbContext))]
-    partial class QueryNinjasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251208100814_LisaLocalTest")]
+    partial class LisaLocalTest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,7 +260,23 @@ namespace QueryNinja.Migrations
                         },
                         new
                         {
-                            GradeId = 5,
+                            GradeId = 3,
+                            FkCourseId = 3,
+                            FkStudentId = 3,
+                            FkTeacherId = 3,
+                            GradeValue = "IG"
+                        },
+                        new
+                        {
+                            GradeId = 4,
+                            FkCourseId = 4,
+                            FkStudentId = 4,
+                            FkTeacherId = 1,
+                            GradeValue = "VG"
+                        },
+                        new
+                        {
+                            GradeId = 9,
                             FkCourseId = 9,
                             FkStudentId = 9,
                             FkTeacherId = 1,
@@ -265,7 +284,15 @@ namespace QueryNinja.Migrations
                         },
                         new
                         {
-                            GradeId = 7,
+                            GradeId = 10,
+                            FkCourseId = 10,
+                            FkStudentId = 10,
+                            FkTeacherId = 2,
+                            GradeValue = "VG"
+                        },
+                        new
+                        {
+                            GradeId = 11,
                             FkCourseId = 1,
                             FkStudentId = 11,
                             FkTeacherId = 1,
@@ -273,7 +300,7 @@ namespace QueryNinja.Migrations
                         },
                         new
                         {
-                            GradeId = 8,
+                            GradeId = 12,
                             FkCourseId = 2,
                             FkStudentId = 12,
                             FkTeacherId = 2,
@@ -281,11 +308,27 @@ namespace QueryNinja.Migrations
                         },
                         new
                         {
-                            GradeId = 10,
+                            GradeId = 18,
+                            FkCourseId = 8,
+                            FkStudentId = 18,
+                            FkTeacherId = 4,
+                            GradeValue = "IG"
+                        },
+                        new
+                        {
+                            GradeId = 19,
                             FkCourseId = 9,
                             FkStudentId = 19,
                             FkTeacherId = 1,
                             GradeValue = "VG"
+                        },
+                        new
+                        {
+                            GradeId = 20,
+                            FkCourseId = 10,
+                            FkStudentId = 20,
+                            FkTeacherId = 2,
+                            GradeValue = "G"
                         });
                 });
 
@@ -313,106 +356,6 @@ namespace QueryNinja.Migrations
                     b.HasIndex("FkStudentId");
 
                     b.ToTable("Registrations");
-
-                    b.HasData(
-                        new
-                        {
-                            RegistrationId = 7,
-                            FkCourseId = 3,
-                            FkStudentId = 3,
-                            RegistrationDate = new DateTime(2025, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 8,
-                            FkCourseId = 4,
-                            FkStudentId = 4,
-                            RegistrationDate = new DateTime(2025, 8, 16, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 9,
-                            FkCourseId = 10,
-                            FkStudentId = 10,
-                            RegistrationDate = new DateTime(2025, 8, 19, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 10,
-                            FkCourseId = 8,
-                            FkStudentId = 18,
-                            RegistrationDate = new DateTime(2025, 8, 18, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 11,
-                            FkCourseId = 10,
-                            FkStudentId = 20,
-                            RegistrationDate = new DateTime(2025, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 21,
-                            FkCourseId = 3,
-                            FkStudentId = 5,
-                            RegistrationDate = new DateTime(2025, 8, 22, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 22,
-                            FkCourseId = 4,
-                            FkStudentId = 6,
-                            RegistrationDate = new DateTime(2025, 8, 23, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 23,
-                            FkCourseId = 6,
-                            FkStudentId = 7,
-                            RegistrationDate = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 24,
-                            FkCourseId = 8,
-                            FkStudentId = 8,
-                            RegistrationDate = new DateTime(2025, 8, 25, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 25,
-                            FkCourseId = 10,
-                            FkStudentId = 13,
-                            RegistrationDate = new DateTime(2025, 8, 26, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 26,
-                            FkCourseId = 3,
-                            FkStudentId = 14,
-                            RegistrationDate = new DateTime(2025, 8, 27, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 27,
-                            FkCourseId = 4,
-                            FkStudentId = 15,
-                            RegistrationDate = new DateTime(2025, 8, 28, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 28,
-                            FkCourseId = 6,
-                            FkStudentId = 16,
-                            RegistrationDate = new DateTime(2025, 8, 29, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 29,
-                            FkCourseId = 8,
-                            FkStudentId = 17,
-                            RegistrationDate = new DateTime(2025, 8, 30, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("QueryNinja.Models.Schedule", b =>
