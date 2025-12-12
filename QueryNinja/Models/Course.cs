@@ -26,11 +26,10 @@ namespace QueryNinja.Models
 
         [Required]
         public int FkTeacherId { get; set; }
-
         [ForeignKey("FkTeacherId")]
+
         public Teacher Teacher { get; set; } = null!;
 
         public ICollection<Grade> Grades { get; set; } = new List<Grade>();
-
     }
 }

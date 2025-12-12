@@ -124,21 +124,21 @@ namespace QueryNinja.UI
                     Console.WriteLine("Invalid date format.");
                     return;
                 }
+                Console.Write("Add teacher to course. ID:  ");
+                var teacherInput = Console.ReadLine();
 
                 try
                 {
                     using (var dbContext = new QueryNinjasDbContext())
                     {
-                        var course = new Course
-                        {
-                            CourseName = courseName,
-                            StartDate = startDate,
-                            EndDate = endDate
-                        };
-                        dbContext.Courses.Add(course);
-                        dbContext.SaveChanges();
-                        Console.WriteLine("Course added successfully.");
-                    }
+                        FkTeacherId = int.Parse(teacherInput),
+                        CourseName = courseName,
+                        StartDate = startDate,
+                        EndDate = endDate
+                    };
+                    dbContext.Courses.Add(course);
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Course added successfully.");
                 }
                 catch (Exception ex)
                 {
@@ -428,6 +428,7 @@ namespace QueryNinja.UI
 
             public void ViewStudentDetails()
             {
+                Console.Clear();
                 Console.WriteLine("==== View Student Details and Records ====");
                 Console.Write("Enter Student ID: ");
                 if (!int.TryParse(Console.ReadLine(), out int studentId)) return;
@@ -450,9 +451,9 @@ namespace QueryNinja.UI
                             return;
                         }
 
-                        Console.WriteLine($"\n--- Records for {records.First().Student.FirstName} {records.First().Student.LastName} (ID: {studentId}) ---");
-                        Console.WriteLine("{0,-20} {1,-10} {2,-20}", "Course", "Grade", "Teacher");
-                        Console.WriteLine("--------------------------------------------------------------------------------");
+                    Console.WriteLine($"\n--- Records for {records.First().Student.FirstName} {records.First().Student.LastName} (ID: {studentId}) ---");
+                    Console.WriteLine("{0,-20} {1,-10} {2,-20}", "Course", "Grade", "Teacher");
+                    Console.WriteLine("--------------------------------------------------------------------------------");
 
                         foreach (var record in records)
                         {
@@ -490,6 +491,33 @@ namespace QueryNinja.UI
         
 
         public class ReportMenu
+        // 1. View Schedule
+        private void ViewSchedule()
+        {
+            var dbContext = new Data.QueryNinjasDbContext();
+            var schedules = dbContext.Schedules
+                .Include(s => s.Course)     
+                .Include(s => s.ClassRoom)
+                .OrderBy(s => s.StartTime)
+                .ToList();
+
+            Console.WriteLine("==== Schedule List ====");
+            foreach (var schedule in schedules)
+            {
+                Console.WriteLine(
+                    $"ID: {schedule.ScheduleId}, " +
+                    $"Course: {schedule.Course?.CourseName}, " +
+                    $"Classroom: {schedule.ClassRoom?.RoomNumber}, " +
+                    $"Start: {schedule.StartTime}, End: {schedule.EndTime}"
+
+                );
+            }
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+
+        // 2. Add Schedule Item
+        private void AddScheduleItem()
         {
             // Using the injected service instance
             private readonly ReportService _reportService;

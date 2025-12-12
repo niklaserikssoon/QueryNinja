@@ -16,10 +16,12 @@ namespace QueryNinja.Models
 
         public int FkCourseId { get; set; }
         [ForeignKey("FkCourseId")]
+
         public Course Course { get; set; }
 
         public int FkClassRoomId { get; set; }
         [ForeignKey("FkClassRoomId")]
+
         public ClassRoom ClassRoom{ get; set; }
 
         [Required]

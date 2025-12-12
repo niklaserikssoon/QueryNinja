@@ -18,12 +18,18 @@ namespace QueryNinja.Models
         public DateTime DateSet { get; set; }
 
         public int FkTeacherId { get; set; }
+        [ForeignKey("FkTeacherId")]
+
         public Teacher Teacher { get; set; }  
 
         public int FkCourseId { get; set; }
+        [ForeignKey("FkCourseId")]
+
         public Course Course { get; set; }
 
         public int FkStudentId { get; set; }
+        [ForeignKey("FkStudentId")]
+
         public Student Student { get; set; }
     }
 }
