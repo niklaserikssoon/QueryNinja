@@ -1,16 +1,19 @@
-﻿using QueryNinja.Data;
-using QueryNinja.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using QueryNinja.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using QueryNinja.Services; 
+using System.Text;
+using System.Threading.Tasks;
+using QueryNinja.Service;
+using QueryNinja.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Transactions;
 
 namespace QueryNinja.UI
 {
     public class UserInterFace
     {
-        // Dependency Injection for ReportService
         private readonly ReportService _reportService;
 
         public UserInterFace(ReportService reportService)
@@ -40,7 +43,7 @@ namespace QueryNinja.UI
                         new CourseMenu().ShowCourse();
                         break;
                     case "2":
-                        new StudentMenu().ShowStudent(); // Corrected class name
+                        new studentMenu().ShowStudent();
                         break;
                     case "3":
                         new ScheduleMenu().ShowSchedule();
@@ -57,8 +60,7 @@ namespace QueryNinja.UI
                 }
             }
         }
-        
-        // 1. COURSE MENU IMPLEMENTATION (Merged All Logic)
+
         public class CourseMenu
         {
             public void ShowCourse()
@@ -83,20 +85,25 @@ namespace QueryNinja.UI
                             CreateCourse();
                             Console.ReadKey();
                             break;
+
                         case "2":
                             ViewCourses();
                             Console.ReadKey();
                             break;
+
                         case "3":
                             ViewActiveCourses();
                             Console.ReadKey();
                             break;
+
                         case "4":
                             RegisterStudentOnCourse();
                             Console.ReadKey();
                             break;
+
                         case "0":
                             return;
+
                         default:
                             Console.WriteLine("Invalid choice.");
                             Console.ReadKey();
@@ -105,6 +112,8 @@ namespace QueryNinja.UI
                 }
             }
 
+
+            // method to create a new course
             public void CreateCourse()
             {
                 Console.WriteLine("==== Create New Course ====");
@@ -129,7 +138,8 @@ namespace QueryNinja.UI
 
                 try
                 {
-                    using (var dbContext = new QueryNinjasDbContext())
+                    var dbContext = new QueryNinjasDbContext();
+                    var course = new Course
                     {
                         FkTeacherId = int.Parse(teacherInput),
                         CourseName = courseName,
@@ -146,22 +156,21 @@ namespace QueryNinja.UI
                 }
             }
 
+            // method to view all courses
             public void ViewCourses()
             {
                 Console.Clear();
                 Console.WriteLine("==== All Courses ====");
                 try
                 {
-                    using (var dbContext = new QueryNinjasDbContext())
+                    var dbContext = new QueryNinjasDbContext();
+                    var courses = dbContext.Courses.ToList();
+
+                    if (courses.Count == 0) { Console.WriteLine("No courses found."); return; }
+
+                    foreach (var course in courses)
                     {
-                        var courses = dbContext.Courses.ToList();
-
-                        if (courses.Count == 0) { Console.WriteLine("No courses found."); return; }
-
-                        foreach (var course in courses)
-                        {
-                            Console.WriteLine($"ID: {course.CourseId}, Name: {course.CourseName}, Start: {course.StartDate.ToShortDateString()}, End: {course.EndDate.ToShortDateString()}");
-                        }
+                        Console.WriteLine($"ID: {course.CourseId}, Name: {course.CourseName}, Start: {course.StartDate.ToShortDateString()}, End: {course.EndDate.ToShortDateString()}");
                     }
                 }
                 catch (Exception ex)
@@ -170,6 +179,7 @@ namespace QueryNinja.UI
                 }
             }
 
+            // 3. View Active Courses
             public void ViewActiveCourses()
             {
                 Console.Clear();
@@ -177,33 +187,36 @@ namespace QueryNinja.UI
                 try
                 {
                     var today = DateTime.Today;
-                    Console.WriteLine($"Today is: {today:yyyy-MM-dd}\n");
-                    using (var dbContext = new QueryNinjasDbContext())
-                    {
-                        var activeCoursesAndStudents = dbContext.Courses
-                            .Where(c => c.StartDate <= today && c.EndDate >= today)
-                            .Include(c => c.Registrations)
-                                .ThenInclude(r => r.Student)
-                            .ToList();
-
-                        if (activeCoursesAndStudents.Count == 0) { Console.WriteLine("No active courses found."); return; }
-
-                        foreach (var course in activeCoursesAndStudents)
+                    Console.WriteLine($"Today is: {today}\n");
+                    var dbContext = new QueryNinjasDbContext();
+                    var activeCoursesAndStudents = dbContext.Courses
+                        .Join(dbContext.Registrations,
+                        c => c.CourseId,
+                        r => r.FkCourseId,
+                        (c, r) => new { c, r })
+                        .Join(dbContext.Students,
+                        cr => cr.r.FkStudentId,
+                        s => s.StudentID,
+                        (cr, s) => new
                         {
-                            Console.WriteLine($"Course: {course.CourseName}");
-                            if (course.Registrations.Any())
-                            {
-                                foreach (var registration in course.Registrations)
-                                {
-                                    Console.WriteLine($"- {registration.Student.FirstName} {registration.Student.LastName}");
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("- No students registered.");
-                            }
-                            Console.WriteLine();
+                            Course = cr.c,
+                            Student = s
+                        })
+
+                        .Where(crs => crs.Course.StartDate <= today && crs.Course.EndDate >= today)
+                        .GroupBy(crs => crs.Course.CourseName)
+                        .ToList();
+
+                    if (activeCoursesAndStudents.Count == 0) { Console.WriteLine("No active courses found."); return; }
+
+                    foreach (var courseGroup in activeCoursesAndStudents)
+                    {
+                        Console.WriteLine($"Course: {courseGroup.Key}");
+                        foreach (var item in courseGroup)
+                        {
+                            Console.WriteLine($"- {item.Student.FirstName} {item.Student.LastName}");
                         }
+                        Console.WriteLine();
                     }
                 }
                 catch (Exception ex)
@@ -211,6 +224,8 @@ namespace QueryNinja.UI
                     Console.WriteLine($"Error viewing active courses: {ex.Message}");
                 }
             }
+
+            // 4. Register Student On Course
 
             public void RegisterStudentOnCourse()
             {
@@ -259,17 +274,15 @@ namespace QueryNinja.UI
                 }
             }
         }
-
-        
-        // 2. STUDENT MENU IMPLEMENTATION
-        
-
-        public class StudentMenu
+                
+    }
+        public class studentMenu
         {
             public void ShowStudent()
             {
                 while (true)
                 {
+                    // student administration menu
                     Console.Clear();
                     Console.WriteLine("==== Student administration ====");
                     Console.WriteLine("1. Add student");
@@ -299,7 +312,7 @@ namespace QueryNinja.UI
                             Console.ReadKey();
                             break;
                         case "5":
-                            ViewStudentDetails();
+                           ViewStudentDetails();
                             Console.ReadKey();
                             break;
                         case "0":
@@ -311,11 +324,9 @@ namespace QueryNinja.UI
                     }
                 }
             }
-
-            // --- Student Menu CRUD/Views (Final Merged Logic) ---
-
-            public void AddStudent()
-            {
+                // 1. Add Student (CREATE)
+                public void AddStudent()
+                {
                 Console.Write("Enter student first name: ");
                 var firstName = Console.ReadLine();
                 Console.Write("Enter student last name: ");
@@ -330,21 +341,21 @@ namespace QueryNinja.UI
                 }
                 Console.Write("Enter student email: ");
                 var email = Console.ReadLine();
-                using (var dbContext = new QueryNinjasDbContext())
+                var dbContext = new QueryNinjasDbContext();
+                var student = new Models.Student
                 {
-                    var student = new Models.Student
-                    {
-                        FirstName = firstName,
-                        LastName = lastName,
-                        BirthDate = birthDate,
-                        Email = email
-                    };
-                    dbContext.Students.Add(student);
-                    dbContext.SaveChanges();
-                    Console.WriteLine("Student added successfully.");
-                }
+                    FirstName = firstName,
+                    LastName = lastName,
+                    BirthDate = birthDate,
+                    Email = email
+                };
+                dbContext.Students.Add(student);
+                dbContext.SaveChanges();
+                Console.WriteLine("Student added successfully.");
             }
 
+
+            // 2. Edit Student (UPDATE)
             public void EditStudent()
             {
                 Console.WriteLine("==== Edit Student ====");
@@ -353,28 +364,24 @@ namespace QueryNinja.UI
 
                 try
                 {
-                    using (var dbContext = new QueryNinjasDbContext())
+                    var dbContext = new QueryNinjasDbContext();
+                    var studentToEdit = dbContext.Students.Find(studentId);
+
+                    if (studentToEdit == null)
                     {
-                        var studentToEdit = dbContext.Students.Find(studentId);
-
-                        if (studentToEdit == null)
-                        {
-                            Console.WriteLine("Student not found.");
-                            return;
-                        }
-
-                        Console.WriteLine($"Current Name: {studentToEdit.FirstName}. Enter new first name (leave blank to keep current):");
-                        var newFirstName = Console.ReadLine();
-                        if (!string.IsNullOrWhiteSpace(newFirstName))
-                        {
-                            studentToEdit.FirstName = newFirstName;
-                        }
-
-                        // Assuming updates for other fields are handled here, but focusing on the structure now
-
-                        dbContext.SaveChanges();
-                        Console.WriteLine("Student updated successfully.");
+                        Console.WriteLine("Student not found.");
+                        return;
                     }
+
+                    Console.WriteLine($"Current Name: {studentToEdit.FirstName}. Enter new first name (leave blank to keep current):");
+                    var newFirstName = Console.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(newFirstName))
+                    {
+                        studentToEdit.FirstName = newFirstName;
+                    }
+
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Student updated successfully.");
                 }
                 catch (Exception ex)
                 {
@@ -382,6 +389,7 @@ namespace QueryNinja.UI
                 }
             }
 
+            // 3. Remove Student (DELETE)
             public void RemoveStudent()
             {
                 Console.WriteLine("==== Remove Student ====");
@@ -390,42 +398,37 @@ namespace QueryNinja.UI
 
                 try
                 {
-                    using (var dbContext = new QueryNinjasDbContext())
+                    var dbContext = new QueryNinjasDbContext();
+                    var studentToRemove = dbContext.Students.Find(studentId);
+
+                    if (studentToRemove == null)
                     {
-                        var studentToRemove = dbContext.Students.Find(studentId);
-
-                        if (studentToRemove == null)
-                        {
-                            Console.WriteLine("Student not found.");
-                            return;
-                        }
-
-                        // Assuming EF/DB handles CASCADE DELETE, otherwise manual deletion of dependent records is needed.
-
-                        dbContext.Students.Remove(studentToRemove);
-                        dbContext.SaveChanges();
-                        Console.WriteLine($"Student ID {studentId} removed successfully.");
+                        Console.WriteLine("Student not found.");
+                        return;
                     }
+
+                    dbContext.Students.Remove(studentToRemove);
+                    dbContext.SaveChanges();
+                    Console.WriteLine($"Student ID {studentId} removed successfully.");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error removing student: {ex.Message}");
                 }
             }
-
-            public void ViewStudents()
+        // 4. View Students (READ)
+        public void ViewStudents()
             {
-                using (var dbContext = new QueryNinjasDbContext())
+                var dbContext = new QueryNinjasDbContext();
+                var students = dbContext.Students.ToList();
+                Console.WriteLine("==== Students List ====");
+                foreach (var student in students)
                 {
-                    var students = dbContext.Students.ToList();
-                    Console.WriteLine("==== Students List ====");
-                    foreach (var student in students)
-                    {
-                        Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Birth Date: {student.BirthDate.ToShortDateString()}, Email: {student.Email}");
-                    }
+                    Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Birth Date: {student.BirthDate.ToShortDateString()}, Email: {student.Email}");
                 }
             }
 
+            // 5. View Student Details (Complex READ/JOIN)
             public void ViewStudentDetails()
             {
                 Console.Clear();
@@ -435,33 +438,32 @@ namespace QueryNinja.UI
 
                 try
                 {
-                    using (var dbContext = new QueryNinjasDbContext())
-                    {
-                        // Complex query to join Grades, Courses, and Teachers
-                        var records = dbContext.Grades
-                            .Where(g => g.FkStudentId == studentId)
-                            .Include(g => g.Student)
-                            .Include(g => g.Course)
-                            .Include(g => g.Teacher)
-                            .ToList();
+                    var dbContext = new QueryNinjasDbContext();
 
-                        if (records.Count == 0)
-                        {
-                            Console.WriteLine($"No records found for Student ID {studentId}.");
-                            return;
-                        }
+                    // Complex query to join Grades, Courses, and Teachers
+                    var records = dbContext.Grades
+                        .Where(g => g.FkStudentId == studentId)
+                        .Include(g => g.Student)
+                        .Include(g => g.Course)
+                        .Include(g => g.Teacher)
+                        .ToList();
+
+                    if (records.Count == 0)
+                    {
+                        Console.WriteLine($"No records found for Student ID {studentId}.");
+                        return;
+                    }
 
                     Console.WriteLine($"\n--- Records for {records.First().Student.FirstName} {records.First().Student.LastName} (ID: {studentId}) ---");
                     Console.WriteLine("{0,-20} {1,-10} {2,-20}", "Course", "Grade", "Teacher");
                     Console.WriteLine("--------------------------------------------------------------------------------");
 
-                        foreach (var record in records)
-                        {
-                            Console.WriteLine("{0,-20} {1,-10} {2,-20}",
-                                record.Course?.CourseName,
-                                record.GradeValue,
-                                record.Teacher?.FirstName + " " + record.Teacher?.LastName);
-                        }
+                    foreach (var record in records)
+                    {
+                        Console.WriteLine("{0,-20} {1,-10} {2,-20}",
+                            record.Course.CourseName,
+                            record.GradeValue,
+                            record.Teacher.FirstName + " " + record.Teacher.LastName);
                     }
                 }
                 catch (Exception ex)
@@ -471,26 +473,51 @@ namespace QueryNinja.UI
             }
         }
 
-        
-        // 3. SCHEDULE MENU IMPLEMENTATION
-        
 
-        public class ScheduleMenu
+    // schema menu
+    public class ScheduleMenu
+    {
+        public void ShowSchedule()
         {
-            public void ShowSchedule()
+            while (true)
             {
-                // ... (Logic remains the same as provided by user)
-                Console.WriteLine("Schedule menu logic...");
-                Console.ReadKey();
-                return;
+                Console.Clear();
+                Console.WriteLine("==== Schedule administration ====");
+                Console.WriteLine("1. View schedule");
+                Console.WriteLine("2. Add schedule item");
+                Console.WriteLine("3. Manage teachers");
+                Console.WriteLine("4. Manage classrooms");
+                Console.WriteLine("0. Back");
+                Console.Write("Choice: ");
+                var input = Console.ReadLine();
+                switch (input)
+                {
+                    case "1":
+                        ViewSchedule();
+                        break;
+
+                    case "2":
+                        AddScheduleItem();
+                        break;
+
+                    case "3":
+                        ManageTeachers();
+                        break;
+
+                    case "4":
+                        ManageClassrooms();
+                        break;
+
+                    case "0":
+                        return;
+
+                    default:
+                        Console.WriteLine("Invalid choice.");
+                        Console.ReadKey();
+                        break;
+                }
             }
         }
-
-        
-        // 4. REPORT MENU IMPLEMENTATION (Unified and Corrected)
-        
-
-        public class ReportMenu
         // 1. View Schedule
         private void ViewSchedule()
         {
@@ -519,45 +546,294 @@ namespace QueryNinja.UI
         // 2. Add Schedule Item
         private void AddScheduleItem()
         {
-            // Using the injected service instance
+            Console.Clear();
+            Console.WriteLine("=== Add Schedule Item ===");
+
+            Console.Write("Enter course ID: ");
+            int courseId = int.Parse(Console.ReadLine());
+
+            Console.Write("Enter classroom ID: ");
+            int classRoomId = int.Parse(Console.ReadLine());
+
+            Console.Write("Enter start time (yyyy-mm-dd HH:mm): ");
+            DateTime startTime;
+            while (!DateTime.TryParse(Console.ReadLine(), out startTime))
+            {
+                Console.Write("Invalid format. Try again (yyyy-mm-dd HH:mm): ");
+            }
+
+            Console.Write("Enter end time (yyyy-mm-dd HH:mm): ");
+            DateTime endTime;
+            while (!DateTime.TryParse(Console.ReadLine(), out endTime))
+            {
+                Console.Write("Invalid format. Try again (yyyy-mm-dd HH:mm): ");
+            }
+
+            using (var dbContext = new Data.QueryNinjasDbContext())
+            {
+                var newSchedule = new Schedule
+                {
+                    FkCourseId = courseId,
+                    FkClassRoomId = classRoomId,
+                    StartTime = startTime,
+                    EndTime = endTime
+                };
+
+                dbContext.Schedules.Add(newSchedule);
+                dbContext.SaveChanges();
+            }
+
+            Console.WriteLine("Schedule item saved to database!");
+            Console.ReadKey();
+
+        }
+        // 3. Manage Teachers
+        private void ManageTeachers()
+        {
+            Console.Clear();
+            var dbContext = new QueryNinjasDbContext();
+            Console.WriteLine("==== Manage Teachers ====");
+            Console.WriteLine("1. Add teacher");
+            Console.WriteLine("2. Edit teacher");
+            Console.WriteLine("3. Remove teacher");
+            Console.WriteLine("4. View all teachers");
+            Console.WriteLine("0. Back");
+            var input = Console.ReadLine();
+
+            switch (input)
+            {
+                case "1":
+                    Console.Write("Enter teacher first name: ");
+                    var firstName = Console.ReadLine();
+                    Console.Write("Enter teacher last name: ");
+                    var lastName = Console.ReadLine();
+                    Console.Write("Enter teacher email: ");
+                    var email = Console.ReadLine();
+                    if (dbContext.Teachers.Any(t => t.Email == email))
+                    {
+                        Console.WriteLine("This email is already registered. Email must be unique.");
+                        return;
+                    }
+                    Console.Write("Enter area of expertise (not mandatory, max 1 per teacher): ");
+                    var aOfExpertise = Console.ReadLine();
+
+                    var teacher = new Teacher
+                    {
+                        FirstName = firstName,
+                        LastName = lastName,
+                        Email = email,
+                        AreaOfExpertise = aOfExpertise
+                    };
+                    dbContext.Teachers.Add(teacher);
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Teacher added successfully.");
+                    Console.ReadKey();
+                    break;
+
+                case "2":
+                    Console.Write("Enter teacherId to edit: ");
+                    var teacherIdInput = int.TryParse(Console.ReadLine(), out int teacherId);
+                    var teacherToEdit = dbContext.Teachers.Find(teacherId);
+                    if (teacherToEdit == null)
+                    {
+                        Console.WriteLine("Teacher not found.");
+                        break;
+                    }
+
+                    Console.WriteLine("What do you want to edit? ");
+                    Console.WriteLine("1. First name");
+                    Console.WriteLine("2. Last name");
+                    Console.WriteLine("3. Email");
+                    Console.WriteLine("4. Area of expertise");
+                    Console.WriteLine("0. Back");
+                    var choice = Console.ReadLine();
+
+                    switch (choice)
+                    {
+                        case "1": 
+                            Console.Write("Enter new first name: ");
+                            teacherToEdit.FirstName = Console.ReadLine();
+                            break;
+
+                        case "2":
+                            Console.Write("Enter new last name: ");
+                            teacherToEdit.LastName = Console.ReadLine();
+                            break;
+
+                        case "3":
+                            Console.Write("Enter new email: ");
+                            teacherToEdit.Email = Console.ReadLine();
+                            break;
+
+                        case "4":
+                            Console.Write("Enter new area of expertise: ");
+                            teacherToEdit.AreaOfExpertise = Console.ReadLine();
+                            break;
+
+                        case "0":
+                            return;
+
+                        default:
+                            Console.WriteLine("Invalid choice.");
+                            Console.ReadKey();
+                            break;
+                    }
+
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Teacher updated successfully.");
+                    Console.ReadKey();
+                    break;
+
+
+                case "3":
+                    Console.WriteLine("Enter teacherId to remove: ");
+                    if (!int.TryParse(Console.ReadLine(), out int removeTeacherId))
+                    {
+                        Console.WriteLine("Invalid input. Please enter a valid number.");
+                        Console.ReadKey();
+                        break;
+                    }
+                    var teacherToRemove = dbContext.Teachers.Find(removeTeacherId);
+                    if (teacherToRemove == null)
+                    {
+                        Console.WriteLine("Teacher not found.");
+                        Console.ReadKey();
+                        break;
+                    }
+
+                    Console.WriteLine($"Are you sure that you want to remove {teacherToRemove.FirstName} {teacherToRemove.LastName}? (Y/N)");
+                    var decision= Console.ReadLine(); 
+
+                    if (decision?.ToUpper() == "Y")
+                    {
+                        dbContext.Teachers.Remove(teacherToRemove);
+                        dbContext.SaveChanges();
+                        Console.WriteLine("Teacher removed successfully.");
+                        Console.ReadKey(); 
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("Operation cancelled");
+                        Console.ReadKey();
+                    }
+                    break;
+
+                case "4":
+                    var teachers = dbContext.Teachers.ToList();
+                    Console.WriteLine("==== Teachers List ====");
+                    foreach (var t in teachers)
+                    {
+                        Console.WriteLine($"ID: {t.TeacherId}, Name: {t.FirstName} {t.LastName}, Email: {t.Email}, Area of expertise: {t.AreaOfExpertise}");
+                    };
+                    Console.ReadKey();
+                    break;
+
+                case "0":
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    Console.ReadKey();
+                    break;
+            }        
+
+        }
+        // 4. Manage Classrooms
+        private void ManageClassrooms()
+        {
+            Console.Clear();
+            var dbContext = new QueryNinjasDbContext();
+            Console.WriteLine("==== Manage Classrooms ====");
+            Console.WriteLine("1. Add classroom");
+            Console.WriteLine("2. View all classrooms");
+            Console.WriteLine("0. Back");
+            var input = Console.ReadLine();
+
+            switch (input)
+            {
+                case "1":
+                    Console.Write("Enter room number: ");
+                    var roomNumber = int.TryParse(Console.ReadLine(), out int roomNr);
+                    if (dbContext.ClassRooms.Any(c => c.RoomNumber == roomNr))
+                    {
+                        Console.WriteLine("Room number already exists. The number must be unique.");
+                        Console.ReadKey();
+                        return;
+                    }
+                    
+                    var classRoom = new ClassRoom
+                    {
+                        RoomNumber = roomNr
+                    };
+                    dbContext.ClassRooms.Add(classRoom);
+                    dbContext.SaveChanges();
+                    Console.WriteLine("Classroom added successfully.");
+                    Console.ReadKey();
+                    break;
+
+                case "2":
+                    var rooms = dbContext.ClassRooms.ToList();
+                    Console.WriteLine("==== List of Classrooms ====");
+                    foreach (var room in rooms)
+                    {
+                        Console.WriteLine($"ID: {room.ClassRoomId}, Room Number: {room.RoomNumber}");
+                    }
+                    Console.ReadKey();
+                    break;
+            
+                case "0":
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice.");
+                    Console.ReadKey();
+                    break;
+            }
+
+        }
+        
+            
+
+    }
+}
+
+
+
+    public class ReportMenu
+    {
             private readonly ReportService _reportService;
 
-            // Constructor required due to Dependency Injection
             public ReportMenu(ReportService reportService)
             {
                 _reportService = reportService;
             }
-
-            public void ShowReport()
+        // Reports menu
+        public void ShowReport()
             {
                 while (true)
                 {
                     Console.Clear();
-                    Console.WriteLine("==== Reports (Final LINQ Reports) ====");
-                    Console.WriteLine("1. Approved students (Avg >= 3.0)");
-                    Console.WriteLine("2. Non-approved students (Avg < 3.0)");
-                    Console.WriteLine("3. All students");
-                    Console.WriteLine("4. Course Average Grades (Complex LINQ)");
+                    Console.WriteLine("==== Reports ====");
+                    Console.WriteLine("1. Active Courses Report");
+                    Console.WriteLine("2. Student Overview Report");
+                    Console.WriteLine("3. Register Student (Stored Procedure)");
                     Console.WriteLine("0. Back");
                     Console.Write("Choice: ");
-
                     var input = Console.ReadLine();
+
                     switch (input)
                     {
                         case "1":
-                            DisplayApprovedStudents();
+                            DisplayActiveCourses();
                             Console.ReadKey();
                             break;
                         case "2":
-                            DisplayNonApprovedStudents();
+                            DisplayStudentOverview();
                             Console.ReadKey();
                             break;
                         case "3":
-                            DisplayAllStudents();
-                            Console.ReadKey();
-                            break;
-                        case "4":
-                            DisplayCourseAverageReport();
+                            RegisterStudentViaSP();
                             Console.ReadKey();
                             break;
                         case "0":
@@ -569,98 +845,43 @@ namespace QueryNinja.UI
                     }
                 }
             }
-
-            // --- Supporting Display Methods (Using _reportService) ---
-
-            public void DisplayCourseAverageReport()
+        // 1. Active Courses Report
+        private void DisplayActiveCourses()
             {
-                try
-                {
-                    var results = _reportService.GetCourseAverageGrades();
+                Console.Clear();
+                Console.WriteLine("--- Active Courses ---");
+                var courses = _reportService.GetActiveCoursesReport();
 
-                    if (results.Count == 0)
-                    {
-                        Console.WriteLine("No results found for the Course Average Grades report.");
-                        return;
-                    }
-                    Console.WriteLine("\n==== Course Average Grades Report ====");
-                    foreach (var item in results)
-                    {
-                        Console.WriteLine($"Course: {item.CourseName,-30} | Average Grade: {item.AverageGrade:F2}");
-                    }
-                }
-                catch (Exception ex)
+                foreach (dynamic course in courses)
                 {
-                    Console.WriteLine($"Error displaying report: {ex.Message}");
+                    Console.WriteLine($"ID: {course.CourseId}, Name: {course.CourseName}, End Date: {course.EndDate.ToShortDateString()}");
                 }
             }
-
-            public void DisplayAllStudents()
+        // 2. Student Overview Report
+        private void DisplayStudentOverview()
             {
-                try
-                {
-                    var results = _reportService.GetAllStudentsReport();
+                Console.Clear();
+                Console.WriteLine("--- Student Overview ---");
+                var overview = _reportService.GetStudentOverviewReport();
 
-                    if (results.Count == 0)
-                    {
-                        Console.WriteLine("No students found in the database.");
-                        return;
-                    }
-                    Console.WriteLine("\n==== All Registered Students ====");
-                    foreach (var item in results)
-                    {
-                        Console.WriteLine($"ID: {item.ID}, Name: {item.StudentName,-25} | Email: {item.Email}");
-                    }
-                }
-                catch (Exception ex)
+                foreach (dynamic student in overview)
                 {
-                    Console.WriteLine($"Error displaying report: {ex.Message}");
+                    Console.WriteLine($"ID: {student.StudentID}, Name: {student.FirstName} {student.LastName}, Courses Enrolled: {student.TotalCourses}");
                 }
             }
-
-            public void DisplayApprovedStudents()
+        // 3. Register Student via Stored Procedure
+        private void RegisterStudentViaSP()
             {
-                try
-                {
-                    var results = _reportService.GetApprovedStudents();
-                    if (results.Count == 0)
-                    {
-                        Console.WriteLine("No students currently meet the approval criteria (Avg Grade >= 3.0).");
-                        return;
-                    }
-                    Console.WriteLine("\n==== Approved Students Report (Avg Grade >= 3.0) ====");
-                    foreach (var item in results)
-                    {
-                        Console.WriteLine($"ID: {item.StudentId}, Name: {item.StudentName,-25} | Average Grade: {item.AvgGrade:F2}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error displaying report: {ex.Message}");
-                }
-            }
+                Console.Clear();
+                Console.WriteLine("--- Register Student via Stored Procedure ---");
+                Console.Write("Student ID: ");
+                if (!int.TryParse(Console.ReadLine(), out int studentId)) return;
 
-            public void DisplayNonApprovedStudents()
-            {
-                try
-                {
-                    var results = _reportService.GetNonApprovedStudents();
-                    if (results.Count == 0)
-                    {
-                        Console.WriteLine("All students meet the approval criteria or no data found.");
-                        return;
-                    }
-                    Console.WriteLine("\n==== Non-Approved Students Report (Avg Grade < 3.0) ====");
-                    foreach (var item in results)
-                    {
-                        Console.WriteLine($"ID: {item.StudentId}, Name: {item.StudentName,-25} | Average Grade: {item.AvgGrade:F2}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error displaying report: {ex.Message}");
-                }
+                Console.Write("Course ID: ");
+                if (!int.TryParse(Console.ReadLine(), out int courseId)) return;
+
+                var result = _reportService.CallRegisterStudentSP(studentId, courseId);
+                Console.WriteLine($"SP Result: {result}");
             }
-        }
     }
-}
+
