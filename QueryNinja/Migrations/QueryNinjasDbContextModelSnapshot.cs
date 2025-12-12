@@ -215,9 +215,6 @@ namespace QueryNinja.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GradeId"));
 
-                    b.Property<DateTime>("DateSet")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("FkCourseId")
                         .HasColumnType("int");
 
