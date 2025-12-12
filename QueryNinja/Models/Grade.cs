@@ -15,6 +15,7 @@ namespace QueryNinja.Models
         public int GradeId { get; set; }
 
         public string GradeValue { get; set; }
+        public DateTime DateSet { get; set; }
 
         public int FkTeacherId { get; set; }
         [ForeignKey("FkTeacherId")]

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QueryNinja.Data;
 
@@ -11,9 +12,11 @@ using QueryNinja.Data;
 namespace QueryNinja.Migrations
 {
     [DbContext(typeof(QueryNinjasDbContext))]
-    partial class QueryNinjasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251208204215_AddDateToGrade")]
+    partial class AddDateToGrade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -240,56 +243,6 @@ namespace QueryNinja.Migrations
                     b.HasIndex("FkTeacherId");
 
                     b.ToTable("Grades");
-
-                    b.HasData(
-                        new
-                        {
-                            GradeId = 1,
-                            FkCourseId = 1,
-                            FkStudentId = 1,
-                            FkTeacherId = 1,
-                            GradeValue = "VG"
-                        },
-                        new
-                        {
-                            GradeId = 2,
-                            FkCourseId = 2,
-                            FkStudentId = 2,
-                            FkTeacherId = 2,
-                            GradeValue = "G"
-                        },
-                        new
-                        {
-                            GradeId = 5,
-                            FkCourseId = 9,
-                            FkStudentId = 9,
-                            FkTeacherId = 1,
-                            GradeValue = "G"
-                        },
-                        new
-                        {
-                            GradeId = 7,
-                            FkCourseId = 1,
-                            FkStudentId = 11,
-                            FkTeacherId = 1,
-                            GradeValue = "G"
-                        },
-                        new
-                        {
-                            GradeId = 8,
-                            FkCourseId = 2,
-                            FkStudentId = 12,
-                            FkTeacherId = 2,
-                            GradeValue = "VG"
-                        },
-                        new
-                        {
-                            GradeId = 10,
-                            FkCourseId = 9,
-                            FkStudentId = 19,
-                            FkTeacherId = 1,
-                            GradeValue = "VG"
-                        });
                 });
 
             modelBuilder.Entity("QueryNinja.Models.Registration", b =>
@@ -306,9 +259,6 @@ namespace QueryNinja.Migrations
                     b.Property<int>("FkStudentId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("RegistrationDate")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("RegistrationId");
 
                     b.HasIndex("FkCourseId");
@@ -316,106 +266,6 @@ namespace QueryNinja.Migrations
                     b.HasIndex("FkStudentId");
 
                     b.ToTable("Registrations");
-
-                    b.HasData(
-                        new
-                        {
-                            RegistrationId = 7,
-                            FkCourseId = 3,
-                            FkStudentId = 3,
-                            RegistrationDate = new DateTime(2025, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 8,
-                            FkCourseId = 4,
-                            FkStudentId = 4,
-                            RegistrationDate = new DateTime(2025, 8, 16, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 9,
-                            FkCourseId = 10,
-                            FkStudentId = 10,
-                            RegistrationDate = new DateTime(2025, 8, 19, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 10,
-                            FkCourseId = 8,
-                            FkStudentId = 18,
-                            RegistrationDate = new DateTime(2025, 8, 18, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 11,
-                            FkCourseId = 10,
-                            FkStudentId = 20,
-                            RegistrationDate = new DateTime(2025, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 21,
-                            FkCourseId = 3,
-                            FkStudentId = 5,
-                            RegistrationDate = new DateTime(2025, 8, 22, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 22,
-                            FkCourseId = 4,
-                            FkStudentId = 6,
-                            RegistrationDate = new DateTime(2025, 8, 23, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 23,
-                            FkCourseId = 6,
-                            FkStudentId = 7,
-                            RegistrationDate = new DateTime(2025, 8, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 24,
-                            FkCourseId = 8,
-                            FkStudentId = 8,
-                            RegistrationDate = new DateTime(2025, 8, 25, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 25,
-                            FkCourseId = 10,
-                            FkStudentId = 13,
-                            RegistrationDate = new DateTime(2025, 8, 26, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 26,
-                            FkCourseId = 3,
-                            FkStudentId = 14,
-                            RegistrationDate = new DateTime(2025, 8, 27, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 27,
-                            FkCourseId = 4,
-                            FkStudentId = 15,
-                            RegistrationDate = new DateTime(2025, 8, 28, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 28,
-                            FkCourseId = 6,
-                            FkStudentId = 16,
-                            RegistrationDate = new DateTime(2025, 8, 29, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RegistrationId = 29,
-                            FkCourseId = 8,
-                            FkStudentId = 17,
-                            RegistrationDate = new DateTime(2025, 8, 30, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("QueryNinja.Models.Schedule", b =>
@@ -529,15 +379,6 @@ namespace QueryNinja.Migrations
                         });
                 });
 
-            modelBuilder.Entity("QueryNinja.Models.StoredProcedureResult", b =>
-                {
-                    b.Property<string>("ResultMessage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("StoredProcedureResults");
-                });
-
             modelBuilder.Entity("QueryNinja.Models.Student", b =>
                 {
                     b.Property<int>("StudentID")
@@ -567,168 +408,6 @@ namespace QueryNinja.Migrations
                     b.HasKey("StudentID");
 
                     b.ToTable("Student", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            StudentID = 1,
-                            BirthDate = new DateTime(2000, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "anna.svensson@student.com",
-                            FirstName = "Anna",
-                            LastName = "Svensson"
-                        },
-                        new
-                        {
-                            StudentID = 2,
-                            BirthDate = new DateTime(1999, 11, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "erik.johansson@student.com",
-                            FirstName = "Erik",
-                            LastName = "Johansson"
-                        },
-                        new
-                        {
-                            StudentID = 3,
-                            BirthDate = new DateTime(2001, 2, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "sara.lindgren@student.com",
-                            FirstName = "Sara",
-                            LastName = "Lindgren"
-                        },
-                        new
-                        {
-                            StudentID = 4,
-                            BirthDate = new DateTime(1998, 7, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "david.berg@student.com",
-                            FirstName = "David",
-                            LastName = "Berg"
-                        },
-                        new
-                        {
-                            StudentID = 5,
-                            BirthDate = new DateTime(2000, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "emma.nystrom@student.com",
-                            FirstName = "Emma",
-                            LastName = "Nyström"
-                        },
-                        new
-                        {
-                            StudentID = 6,
-                            BirthDate = new DateTime(1999, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "johan.persson@student.com",
-                            FirstName = "Johan",
-                            LastName = "Persson"
-                        },
-                        new
-                        {
-                            StudentID = 7,
-                            BirthDate = new DateTime(2001, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "maja.andersson@student.com",
-                            FirstName = "Maja",
-                            LastName = "Andersson"
-                        },
-                        new
-                        {
-                            StudentID = 8,
-                            BirthDate = new DateTime(1998, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "niklas.karlsson@student.com",
-                            FirstName = "Niklas",
-                            LastName = "Karlsson"
-                        },
-                        new
-                        {
-                            StudentID = 9,
-                            BirthDate = new DateTime(2000, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "elin.holm@student.com",
-                            FirstName = "Elin",
-                            LastName = "Holm"
-                        },
-                        new
-                        {
-                            StudentID = 10,
-                            BirthDate = new DateTime(1999, 8, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "oscar.wikstrom@student.com",
-                            FirstName = "Oscar",
-                            LastName = "Wikström"
-                        },
-                        new
-                        {
-                            StudentID = 11,
-                            BirthDate = new DateTime(2001, 1, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "karin.aberg@student.com",
-                            FirstName = "Karin",
-                            LastName = "Åberg"
-                        },
-                        new
-                        {
-                            StudentID = 12,
-                            BirthDate = new DateTime(1998, 10, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "mattias.forsberg@student.com",
-                            FirstName = "Mattias",
-                            LastName = "Forsberg"
-                        },
-                        new
-                        {
-                            StudentID = 13,
-                            BirthDate = new DateTime(2000, 4, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "linda.strom@student.com",
-                            FirstName = "Linda",
-                            LastName = "Ström"
-                        },
-                        new
-                        {
-                            StudentID = 14,
-                            BirthDate = new DateTime(1999, 7, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "patrik.hellgren@student.com",
-                            FirstName = "Patrik",
-                            LastName = "Hellgren"
-                        },
-                        new
-                        {
-                            StudentID = 15,
-                            BirthDate = new DateTime(2001, 11, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "sofia.blom@student.com",
-                            FirstName = "Sofia",
-                            LastName = "Blom"
-                        },
-                        new
-                        {
-                            StudentID = 16,
-                            BirthDate = new DateTime(1998, 2, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "andreas.lundqvist@student.com",
-                            FirstName = "Andreas",
-                            LastName = "Lundqvist"
-                        },
-                        new
-                        {
-                            StudentID = 17,
-                            BirthDate = new DateTime(2000, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "helena.sandberg@student.com",
-                            FirstName = "Helena",
-                            LastName = "Sandberg"
-                        },
-                        new
-                        {
-                            StudentID = 18,
-                            BirthDate = new DateTime(1999, 12, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "marcus.viklund@student.com",
-                            FirstName = "Marcus",
-                            LastName = "Viklund"
-                        },
-                        new
-                        {
-                            StudentID = 19,
-                            BirthDate = new DateTime(2001, 8, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "ida.norberg@student.com",
-                            FirstName = "Ida",
-                            LastName = "Norberg"
-                        },
-                        new
-                        {
-                            StudentID = 20,
-                            BirthDate = new DateTime(1998, 3, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "per.haggstrom@student.com",
-                            FirstName = "Per",
-                            LastName = "Häggström"
-                        });
                 });
 
             modelBuilder.Entity("QueryNinja.Models.Teacher", b =>
