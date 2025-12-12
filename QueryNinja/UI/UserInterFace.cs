@@ -133,12 +133,15 @@ namespace QueryNinja.UI
                     Console.WriteLine("Invalid date format.");
                     return;
                 }
+                Console.Write("Add teacher to course. ID:  ");
+                var teacherInput = Console.ReadLine();
 
                 try
                 {
                     var dbContext = new QueryNinjasDbContext();
                     var course = new Course
                     {
+                        FkTeacherId = int.Parse(teacherInput),
                         CourseName = courseName,
                         StartDate = startDate,
                         EndDate = endDate
@@ -428,6 +431,7 @@ namespace QueryNinja.UI
             // 5. View Student Details (Complex READ/JOIN)
             public void ViewStudentDetails()
             {
+                Console.Clear();
                 Console.WriteLine("==== View Student Details and Records ====");
                 Console.Write("Enter Student ID: ");
                 if (!int.TryParse(Console.ReadLine(), out int studentId)) return;
@@ -451,7 +455,7 @@ namespace QueryNinja.UI
                     }
 
                     Console.WriteLine($"\n--- Records for {records.First().Student.FirstName} {records.First().Student.LastName} (ID: {studentId}) ---");
-                    Console.WriteLine("{0,-20} {1,-10} {2,-20} {3}", "Course", "Grade", "Teacher");
+                    Console.WriteLine("{0,-20} {1,-10} {2,-20}", "Course", "Grade", "Teacher");
                     Console.WriteLine("--------------------------------------------------------------------------------");
 
                     foreach (var record in records)
@@ -521,6 +525,7 @@ namespace QueryNinja.UI
             var schedules = dbContext.Schedules
                 .Include(s => s.Course)     
                 .Include(s => s.ClassRoom)
+                .OrderBy(s => s.StartTime)
                 .ToList();
 
             Console.WriteLine("==== Schedule List ====");
@@ -536,9 +541,8 @@ namespace QueryNinja.UI
             }
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
-
-
         }
+
         // 2. Add Schedule Item
         private void AddScheduleItem()
         {
@@ -814,6 +818,8 @@ namespace QueryNinja.UI
                     Console.WriteLine("1. Active Courses Report");
                     Console.WriteLine("2. Student Overview Report");
                     Console.WriteLine("3. Register Student (Stored Procedure)");
+                    Console.WriteLine("4. Student Pass/Fail Report");
+                    Console.WriteLine("5. Overall Pass/Fail Report");
                     Console.WriteLine("0. Back");
                     Console.Write("Choice: ");
                     var input = Console.ReadLine();
@@ -832,12 +838,20 @@ namespace QueryNinja.UI
                             RegisterStudentViaSP();
                             Console.ReadKey();
                             break;
-                        case "0":
-                            return;
-                        default:
-                            Console.WriteLine("Invalid choice.");
+                        case "4":
+                            GenerateStudentPassFailReport();
                             Console.ReadKey();
                             break;
+                        case "5":
+                                GenerateOverallPassFailReport();
+                                Console.ReadKey();
+                                break;
+                        case "0":
+                                return;
+                            default:
+                                Console.WriteLine("Invalid choice.");
+                                Console.ReadKey();
+                                break;
                     }
                 }
             }
@@ -879,5 +893,122 @@ namespace QueryNinja.UI
                 var result = _reportService.CallRegisterStudentSP(studentId, courseId);
                 Console.WriteLine($"SP Result: {result}");
             }
+
+        // method to generate report on the number of passing and failing students per period (full year and half year)
+        public void GenerateStudentPassFailReport()
+        {
+            Console.WriteLine("==== View Student Course Results ====");
+
+            Console.Write("Enter Student ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int studentId))
+            {
+                Console.WriteLine("Invalid Student ID.");
+                return;
+            }
+
+            Console.Write("Filter by 'year', 'halfyear' or 'quarter': ");
+            string timeFilter = Console.ReadLine()?.Trim().ToLower();
+
+            Console.Write("Do you want to see 'passed' or 'failed' courses? ");
+            string resultType = Console.ReadLine()?.Trim().ToLower();
+
+            if (resultType != "passed" && resultType != "failed")
+            {
+                Console.WriteLine("Invalid option.");
+                return;
+            }
+
+            DateTime now = DateTime.Now;
+            DateTime start;
+            DateTime end = now;
+
+            switch (timeFilter)
+            {
+                case "year":
+                    start = new DateTime(now.Year - 1, now.Month, now.Day);
+                    break;
+
+                case "halfyear":
+                    start = now.AddMonths(-6);
+                    break;
+
+                case "quarter":
+                    start = now.AddMonths(-3);
+                    break;
+
+                default:
+                    Console.WriteLine("Invalid filter. Choose 'year', 'halfyear' or 'quarter'.");
+                    return;
+            }
+
+            using var dbContext = new QueryNinjasDbContext();
+
+            var query = dbContext.Grades
+                .Include(g => g.Course)
+                .Include(g => g.Student)
+                .Where(g => g.FkStudentId == studentId)
+                .Where(g => g.Course.StartDate >= start && g.Course.StartDate <= end);
+
+            var studentGrades = query.ToList();
+
+            if (!studentGrades.Any())
+            {
+                Console.WriteLine("No courses found in this time period.");
+                return;
+            }
+
+            var filtered = resultType == "passed"
+                ? studentGrades.Where(g => g.GradeValue == "G" || g.GradeValue == "VG").ToList()
+                : studentGrades.Where(g => g.GradeValue == "IG").ToList();
+
+            if (!filtered.Any())
+            {
+                Console.WriteLine($"No {resultType} courses found.");
+                return;
+            }
+
+            var student = filtered.First().Student;
+
+            Console.WriteLine($"\n{resultType.ToUpper()} courses for {student.FirstName} {student.LastName}");
+            Console.WriteLine($"Period: {start:yyyy-MM-dd} → {end:yyyy-MM-dd}");
+            Console.WriteLine("------------------------------------------------------");
+            Console.WriteLine("{0,-25} {1,-10} {2,-12}", "Course", "Grade", "StartDate");
+
+            foreach (var g in filtered)
+            {
+                Console.WriteLine("{0,-25} {1,-10} {2,-12:yyyy-MM-dd}",
+                    g.Course.CourseName,
+                    g.GradeValue,
+                    g.Course.StartDate
+                );
+            }
+        }
+        // method to generate report on all studens passed and failed courses
+        public void GenerateOverallPassFailReport()
+        {
+            Console.Clear();
+            Console.WriteLine("--- Overall Student Pass/Fail Report ---");
+            using var dbContext = new QueryNinjasDbContext();
+            var reportData = dbContext.Students
+                .Select(s => new
+                {
+                    StudentID = s.StudentID,
+                    FullName = s.FirstName + " " + s.LastName,
+                    PassedCourses = s.Grades.Count(g => g.GradeValue == "G" || g.GradeValue == "VG"),
+                    FailedCourses = s.Grades.Count(g => g.GradeValue == "IG")
+                })
+                .ToList();
+            Console.WriteLine("{0,-10} {1,-25} {2,-15} {3,-15}", "StudentID", "Name", "Passed", "Failed");
+            Console.WriteLine("--------------------------------------------------------------");
+            foreach (var data in reportData)
+            {
+                Console.WriteLine("{0,-10} {1,-25} {2,-15} {3,-15}",
+                    data.StudentID,
+                    data.FullName,
+                    data.PassedCourses,
+                    data.FailedCourses
+                );
+            }
+        }
     }
 

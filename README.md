@@ -33,10 +33,6 @@ This is a console-based application that currently focuses on backend functional
 The program is operated through a simple menu system (options 1, 2, 3, 4, …), organized into clear categories for an easier user experience.
 It is built using SQL Server (SSMS), Visual Studio, and Entity Framework, and follows an ER diagram that will be presented further below.
 
-## Database schema
-- this is our database schema that was built with ERD plus
-<img width="2328" height="1052" alt="Skärmbild 2025-11-25 115146" src="https://github.com/user-attachments/assets/e707d794-0206-4af1-9a44-838b26816bde" />
-
 ### The program in action
 
 - This is the main menu that will show when the program starts
